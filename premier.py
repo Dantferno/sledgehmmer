@@ -138,12 +138,14 @@ def troisieme_fenetrefunc(file):
 
     def update_list(matrice,evalue,recouvrement,tree):
         j=0
+        #verifie que la evalue est sous le bon format
         try:
             evalue = float(evalue)
         except ValueError:
-            tk.messagebox.showerror(title='Erreur',message='La evalue doit etre un reel,ecriture scientifique accepté sous la forme 1e-N')
-            return false
+            tk.messagebox.showerror(title='Erreur',message='La evalue doit etre un reel \nEcriture scientifique accepté sous la forme 1e-N')
+            return False
         recouvrement = int(recouvrement)
+        #Oublie l'ancien tableau et recreer le avec les conditions
         tree.grid_remove()
         tree = ttkwidgets.CheckboxTreeview(troisieme_fenetre, height=20)
         tree['columns']=('one','two','three','four','five','six','7','8','9','10','11','12','13')
