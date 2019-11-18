@@ -14,7 +14,7 @@ import re
 
 
 def parsehmmsearch(file):
-    #Parse le fichier domtblout
+    #Parse le fichier domtblout output -> '' ou fournit par l'user -> 'file'
     matrice = []
     if file=='':
         with open('tmp','r') as f:
@@ -33,9 +33,10 @@ def parsehmmsearch(file):
 
 
 def check_maj(frame,button_maj):
-    #cherche la derniere maj de Pfam-a.hmm et compare a celle local
+    #cherche la derniere maj de Pfam-a.hmm sur le serveur FTP et compare a celle local
     #si differente execute download_pfam si bouton appuye
     try:
+        #si une erreur intervient dans ce block un message d'erreur est retourne (erreur de connection)
         ftp = ftplib.FTP('ftp.ebi.ac.uk')
         ftp.login()
         ftp.cwd('/pub/databases/Pfam/current_release')
@@ -92,12 +93,13 @@ def download_pfam(last_modified,ftp,frame):
     update_pfam.update()
     t1 = threading.Thread(target=download)
     t1.start()
+    #Pendant le telechargement la barre de progres augmente conjointement avec la taille de la librairie telecharge
     while t1.isAlive():
         update_pfam.update()
         progress_bar['value'] = os.path.getsize('./librairie/Pfam-A.hmm.gz')
     t1.join()
 
-    #decompresse le fichier et supprime l'ancienne librairie
+    #supprime l'ancienne librairie et decompresse le fichier
     gunzip = tk.Label(update_pfam, text='La nouvelle librairie est en train d\'etre decompresse').grid()
     os.remove('./librairie/Pfam-A.hmm')
     subprocess.call('gunzip ./librairie/Pfam-A.hmm.gz', shell=True)
@@ -137,8 +139,9 @@ def troisieme_fenetrefunc(file):
     labelresultat = tk.Label(troisieme_fenetre, text='Resultat trouvé : {}'.format(len(matrice))).grid(row=1)
 
     def update_list(matrice,evalue,recouvrement,tree):
+        #met a jour le tableau selon les conditions donnees
         j=0
-        #verifie que la evalue est sous le bon format
+        #verifie que la evalue est sous le bon format sinon retourne un message d'erreur
         try:
             evalue = float(evalue)
         except ValueError:
@@ -222,7 +225,6 @@ def troisieme_fenetrefunc(file):
     tree.heading('12',text='ali to')
     tree.heading('13',text='ali from')
     j=0
-
 
     for i in matrice:
         j+=1
