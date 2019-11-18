@@ -13,14 +13,23 @@ import os
 import re
 
 
-def parsehmmsearch():
+def parsehmmsearch(file):
+    #Parse le fichier domtblout
     matrice = []
-    with open('tmp','r') as f:
-        ff =f.readlines()
-        for line in ff[3:-10]:
-            fin = re.split(r"\s+",line)
-            matrice.append(fin)
-    return matrice
+    if file=='':
+        with open('tmp','r') as f:
+            ff =f.readlines()
+            for line in ff[3:-10]:
+                fin = re.split(r"\s+",line)
+                matrice.append(fin)
+        return matrice
+    else:
+        with open(file,'r') as f:
+            ff =f.readlines()
+            for line in ff[3:-10]:
+                fin = re.split(r"\s+",line)
+                matrice.append(fin)
+        return matrice
 
 
 def check_maj(frame,button_maj):
@@ -120,11 +129,11 @@ def download_pfam(last_modified,ftp,frame):
     suivant = tk.Button(update_pfam, text='Lancer recherche', command=lambda:fenetre_suivante(update_pfam)).grid()
     import_resultat = tk.Button(update_pfam, text='Importer ses propres resultats').grid()
 
-def troisieme_fenetrefunc(macmd):
+def troisieme_fenetrefunc(file):
     troisieme_fenetre = tk.Frame()
 
     #stock dans matrice les resultats parsé (une ligne -> une liste)
-    matrice = parsehmmsearch()
+    matrice = parsehmmsearch(file)
     labelresultat = tk.Label(troisieme_fenetre, text='Resultat trouvé : {}'.format(len(matrice))).grid(row=1)
 
     def update_list(matrice,evalue,recouvrement,tree):
@@ -284,8 +293,9 @@ def deuxieme_fenetrefunc(macmd,file):
         if p.returncode !=0:
             tk.messagebox.showerror('Erreur', 'Une erreur s\'est produite lors de l\'execution')
         else:
+            file=''
             tk.messagebox.showinfo('Succee', 'processe termine en {} secondes'.format(time.time() - start_time))
-            suivant = tk.Button(deuxieme_fenetre,text='suivant',command=lambda:troisieme_fenetrefunc(macmd)).grid()
+            suivant = tk.Button(deuxieme_fenetre,text='suivant',command=lambda:troisieme_fenetrefunc(file)).grid()
 
     def cancel_popen(p):
         #tue l
@@ -404,7 +414,7 @@ def accueil_fenetre():
 
     maj = tk.Button(accueil, text='Chercher une mise a jour',command=lambda:check_maj(accueil,maj))
     suivant = tk.Button(accueil, text='Lancer recherche', command=lambda:fenetre_suivante(accueil))
-    import_resultat = tk.Button(accueil, text='Importer ses propres domtblout',command=OpenPersonalFile)
+    import_resultat = tk.Button(accueil, text='Importer ses propres domtblout',command=lambda:OpenPersonalFile(accueil))
     maj.grid(row=5)
     suivant.grid(row=6)
     import_resultat.grid(row=7)
@@ -414,9 +424,10 @@ def fenetre_suivante(frame):
     frame.grid_forget()
     fenetre()
 
-def OpenPersonalFile():
+def OpenPersonalFile(frame):
     persoFile = tk.filedialog.askopenfilename()
-
+    frame.grid_forget()
+    troisieme_fenetrefunc(persoFile)
 
 
 #debut du script
