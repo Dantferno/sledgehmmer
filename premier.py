@@ -12,7 +12,6 @@ import ftplib
 import os
 import re
 
-print('github')
 
 def parsehmmsearch():
     matrice = []
