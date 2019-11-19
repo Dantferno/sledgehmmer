@@ -1,6 +1,7 @@
 import tkinter as tk
 import tkinter.filedialog
 import tkinter.messagebox
+import ttkthemes
 import subprocess
 import threading
 import time
@@ -63,21 +64,21 @@ def check_maj(frame,button_maj):
 
         #affiche sur le GUI les informations
         button_maj.grid_forget()
-        curlabel = tk.Label(frame,
+        curlabel = ttk.Label(frame,
         text='Version actuelle : {}'.format(current_release)).grid(row=1)
-        nbrlabel = tk.Label(frame,
+        nbrlabel = ttk.Label(frame,
         text='Nombre de profile : {}'.format(nbr_profile)).grid(row=2)
-        lastlabel = tk.Label(frame,
+        lastlabel = ttk.Label(frame,
         text='derniere version : {}'.format(last_modified)).grid(row=3)
 
         #Si une nouvelle version a telecharge propose
         if last_modified != current_release:
-            majbutton = tk.Button(frame, text='Mettre a jour',
+            majbutton = ttk.Button(frame, text='Mettre a jour',
             command=lambda:download_pfam(last_modified,ftp,frame)).grid(row=4)
 
         else:
-            nomaj = tk.Label(frame,
-            text='Aucune mise a jour disponible',fg='red').grid(row=4)
+            nomaj = ttk.Label(frame,
+            text='Aucune mise a jour disponible').grid(row=4)
             ftp.close()
 
 
@@ -92,7 +93,7 @@ def download_pfam(last_modified,ftp,frame):
     dans nbr_profile_pfam
     '''
     frame.grid_forget()
-    update_pfam = tk.Frame(wBestHMM)
+    update_pfam = ttk.Frame(wBestHMM)
 
     def download():
         with open('./librairie/Pfam-A.hmm.gz','wb') as handle:
@@ -100,7 +101,7 @@ def download_pfam(last_modified,ftp,frame):
         ftp.close()
 
 
-    telechargement = tk.Label(update_pfam,
+    telechargement = ttk.Label(update_pfam,
     text='La nouvelle librairie est en train d\'etre telecharge').grid()
 
     #Creer un bar de progres contenant la taille du fichier
@@ -122,14 +123,14 @@ def download_pfam(last_modified,ftp,frame):
     t1.join()
 
     #supprime l'ancienne librairie et decompresse le fichier
-    gunzip = tk.Label(update_pfam,
+    gunzip = ttk.Label(update_pfam,
     text='La nouvelle librairie est en train d\'etre decompresse').grid()
     os.remove('./librairie/Pfam-A.hmm')
     subprocess.call('gunzip ./librairie/Pfam-A.hmm.gz', shell=True)
     update_pfam.update()
 
     #supprime les anciens indexes et hmmpress la nouvelle librairie
-    presslabel = tk.Label(update_pfam,
+    presslabel = ttk.Label(update_pfam,
     text='La nouvelle librairie est en train d\' etre optimisé (hmmpress)').grid()
     update_pfam.update()
     pressfile = ['./librairie/Pfam-A.hmm.h3f',
@@ -147,7 +148,7 @@ def download_pfam(last_modified,ftp,frame):
         for line in f:
             if line.startswith('//'):
                 count +=1
-    count_profile = tk.Label(update_pfam,
+    count_profile = ttk.Label(update_pfam,
     text='La nouvelle librarie contient {} profiles'.format(count)).grid()
 
     #enregistre dans un fichier persistant le nombre de profile
@@ -156,20 +157,20 @@ def download_pfam(last_modified,ftp,frame):
         f.write(str(count)+'\n')
         f.write(last_modified)
 
-    nouvelle_librairie = tk.Label(update_pfam,
+    nouvelle_librairie = ttk.Label(update_pfam,
     text='La nouvelle librarie est telecharge').grid()
-    suivant = tk.Button(update_pfam,
+    suivant = ttk.Button(update_pfam,
     text='Lancer recherche', command=lambda:retour_recherche(update_pfam)).grid()
-    import_resultat = tk.Button(update_pfam,
+    import_resultat = ttk.Button(update_pfam,
     text='Importer ses propres resultats').grid()
 
 def troisieme_fenetrefunc(file):
     '''Fenetre affichant les resultats sous la forme d'un tableau '''
-    troisieme_fenetre = tk.Frame()
+    troisieme_fenetre = ttk.Frame()
 
     #stock dans matrice les resultats parsé (une ligne -> une liste)
     matrice = parsehmmsearch(troisieme_fenetre,file)
-    labelresultat = tk.Label(troisieme_fenetre,
+    labelresultat = ttk.Label(troisieme_fenetre,
     text='Resultat trouvé : {}'.format(len(matrice)))
 
     #Creer un tableau des resultats
@@ -177,21 +178,21 @@ def troisieme_fenetrefunc(file):
     tree['columns']=('one','two','three','four','five','six','7','8','9','10','11','12','13')
     #tailles colonnes
     tree.column("#0",width=50)
-    tree.column("one",width=100)
-    tree.column("two",width=100)
-    tree.column("three",width=100)
-    tree.column('four',width=100)
-    tree.column('five',width=100)
-    tree.column('six',width=100)
-    tree.column('7',width=100)
-    tree.column('8',width=100)
-    tree.column('9',width=100)
-    tree.column('10',width=100)
-    tree.column('11',width=100)
-    tree.column('12',width=100)
-    tree.column('13',width=100)
+    tree.column("one",width=100,anchor=tk.CENTER)
+    tree.column("two",width=50,anchor=tk.CENTER)
+    tree.column("three",width=150,anchor=tk.CENTER)
+    tree.column('four',width=50,anchor=tk.CENTER)
+    tree.column('five',width=100,anchor=tk.CENTER)
+    tree.column('six',width=100,anchor=tk.CENTER)
+    tree.column('7',width=20,anchor=tk.CENTER)
+    tree.column('8',width=20,anchor=tk.CENTER)
+    tree.column('9',width=100,anchor=tk.CENTER)
+    tree.column('10',width=100,anchor=tk.CENTER)
+    tree.column('11',width=100,anchor=tk.CENTER)
+    tree.column('12',width=100,anchor=tk.CENTER)
+    tree.column('13',width=100,anchor=tk.CENTER)
     #nom colonnes
-    tree.heading('#0',text='select')
+    tree.heading('#0',text='')
     tree.heading('one',text='target')
     tree.heading('two',text='tlen')
     tree.heading('three',text='query')
@@ -213,41 +214,41 @@ def troisieme_fenetrefunc(file):
         values=(i[0],i[2],i[3],i[5],i[6],i[7],i[9],i[10],i[11],i[15],i[16],i[17],i[18]))
 
     tree.grid(row=2,columnspan=3)
-    filtre_label = tk.Label(troisieme_fenetre,text='').grid(row=3)
+    filtre_label = ttk.Label(troisieme_fenetre,text='').grid(row=3)
     #Choix evalue
-    filtre_evalue_label = tk.Label(troisieme_fenetre,
+    filtre_evalue_label = ttk.Label(troisieme_fenetre,
     text='e-value inférieur à :').grid(row=4,column=0)
     filtre_evalue = tk.StringVar()
-    filtre_evalue_entry = tk.Entry(troisieme_fenetre,
+    filtre_evalue_entry = ttk.Entry(troisieme_fenetre,
     textvariable=filtre_evalue,width=10, justify='center')
     filtre_evalue_entry.insert(0,'10')
     filtre_evalue_entry.grid(row=5,column=0)
     #Choix recouvrement
-    filtre_recouvrement_label = tk.Label(troisieme_fenetre,
+    filtre_recouvrement_label = ttk.Label(troisieme_fenetre,
     text='% recouvrement min :').grid(row=4,column=1)
-    recouvrement = tk.Scale(troisieme_fenetre,
+    recouvrement = ttk.Scale(troisieme_fenetre,
     from_=0,to=100,orient='horizontal')
 
     #bouton de mise a jour
-    majbutton = tk.Button(troisieme_fenetre,
+    majbutton = ttk.Button(troisieme_fenetre,
     text='Mettre à jour',
     command=lambda:update_tree(matrice,filtre_evalue.get(),recouvrement.get(),tree,labelresultat,troisieme_fenetre)).grid(row=5,column=2)
-    tk.Label(troisieme_fenetre).grid()
+    ttk.Label(troisieme_fenetre).grid()
 
     def add_to_DB(tree):
         '''Ajouter les lignes selectionne a la database mysql'''
         tk.messagebox.showinfo(title='coucou',message='{0}'.format(tree.get_checked()))
 
     #Bouton d'ajout a la DB
-    send_check = tk.Button(troisieme_fenetre,
+    send_check = ttk.Button(troisieme_fenetre,
     text='Ajouter a la base de donnee',
     command=lambda:add_to_DB(tree))
     #Bouton retour recherche
-    NouvelleRecherche = tk.Button(troisieme_fenetre,
+    NouvelleRecherche = ttk.Button(troisieme_fenetre,
     text='Nouvelle recherche',
     command=lambda:retour_recherche(troisieme_fenetre))
     #bouton retour accueil
-    Accueil = tk.Button(troisieme_fenetre,
+    Accueil = ttk.Button(troisieme_fenetre,
     text='Retour accueil',
     command=lambda:retour_accueil(troisieme_fenetre))
     #Configuration du layout
@@ -256,7 +257,7 @@ def troisieme_fenetrefunc(file):
     send_check.grid(row=6,column=1)
     NouvelleRecherche.grid(row=6,column=2)
     Accueil.grid(row=6,column=0)
-    tk.Label(troisieme_fenetre).grid()
+    ttk.Label(troisieme_fenetre).grid()
     troisieme_fenetre.grid(row=0, column=1,sticky='news')
     troisieme_fenetre.grid_rowconfigure(0, pad=50)
     troisieme_fenetre.grid_rowconfigure(6, pad=50)
@@ -265,12 +266,12 @@ def deuxieme_fenetrefunc(macmd,file):
     '''deuxieme_fenetre affichant les modeles en train d'etre query pour
     hmmsearch ou les sequences query pour hmmscan avec une barre de progres
     '''
-    deuxieme_fenetre = tk.Frame(wBestHMM)
+    deuxieme_fenetre = ttk.Frame(wBestHMM)
 
 
     #Affiche la commande execute
-    nom_cmd = tk.Label(deuxieme_fenetre, text='Commande execute :').grid(row=0,columnspan=2)
-    cmd_label=tk.Label(deuxieme_fenetre, text=macmd)
+    nom_cmd = ttk.Label(deuxieme_fenetre, text='Commande execute :').grid(row=0,columnspan=2)
+    cmd_label=ttk.Label(deuxieme_fenetre, text=macmd)
     start_time = time.time()
 
 
@@ -289,7 +290,7 @@ def deuxieme_fenetrefunc(macmd,file):
     #output dynamique dans output_text et progressbar
     progress_bar = ttk.Progressbar(deuxieme_fenetre, length=650,maximum=maxval)
 
-    def popene(output_text,macmd,progress_bar):
+    def popene(output_text,macmd,progress_bar,frame):
         '''Execute la recherche hmmsearch ou scan (macmd), ecrit
         l'output dans output_text et augmente conjointement la barre de progres
         '''
@@ -297,8 +298,8 @@ def deuxieme_fenetrefunc(macmd,file):
         #ecris dans output_text l'output
         with subprocess.Popen("exec " + macmd, shell=True,
         stdout=subprocess.PIPE, bufsize=1, universal_newlines=True) as p:
-            cancel_button = tk.Button(deuxieme_fenetre,
-            text='Retour', command=lambda:cancel_popen(p)).grid(row=4,
+            cancel_button = ttk.Button(deuxieme_fenetre,
+            text='Retour', command=lambda:cancel_popen(p,frame)).grid(row=4,
             column=0,sticky='w',pady=25,padx=25)
             for line in p.stdout:
                 if line.startswith('Query:'):
@@ -318,22 +319,22 @@ def deuxieme_fenetrefunc(macmd,file):
             file='tmp'
             tk.messagebox.showinfo('Succee',
             'processe termine en {} secondes'.format(time.time() - start_time))
-            suivant = tk.Button(deuxieme_fenetre,text='suivant',
+            suivant = ttk.Button(deuxieme_fenetre,text='suivant',
             command=lambda:aller_troisieme_fenetre(deuxieme_fenetre,file)).grid(row=4,
             column=1,sticky='e',pady=25,padx=25)
 
-    def cancel_popen(p):
+    def cancel_popen(p,frame):
         '''tue le thread si bouton retour est appuye et retourne sur
         la fenetre de recherche'''
         p.kill()
-        fenetre()
+        retour_recherche(frame)
 
 
     #Cadre text recevant l'output de la commande
     output_text = tk.Text(deuxieme_fenetre, borderwidth=3, relief="sunken")
 
     #lance un thread separé pour popene afin de ne pas freeze le gui
-    t1= threading.Thread(target=popene, args=(output_text,macmd,progress_bar))
+    t1= threading.Thread(target=popene, args=(output_text,macmd,progress_bar,deuxieme_fenetre))
     t1.start()
 
     #configuration du deuxieme frame
@@ -354,38 +355,41 @@ def fenetre():
         '''Demande a l'utilisateur de choisir un fichier'''
         global filename
         filename = tk.filedialog.askopenfilename()
-        nom_file = tk.Label(premiere_fenetre,text=filename).grid(row=2,column=1)
+        nom_file['text'] = filename
 
-    premiere_fenetre = tk.Frame(wBestHMM)
+    premiere_fenetre = ttk.Frame(wBestHMM)
+    nom_file = ttk.Label(premiere_fenetre,text='')
     #Rentrer un fichier fasta
-    Labelinput=tk.Label(premiere_fenetre, text="Rentrer un fichier fasta")
-    browsebutton = tk.Button(premiere_fenetre, text="Parcourir", command=Openfile)
+    Labelinput=ttk.Label(premiere_fenetre, text="Rentrer un fichier fasta")
+    browsebutton = ttk.Button(premiere_fenetre, text="Parcourir", command=Openfile)
 
     #Choisir entre hmmsearch et hmmscan
     choicecmd = tk.StringVar()
-    radiosearch =tk.Radiobutton(premiere_fenetre, text="hmmsearch", value="hmmsearch", var=choicecmd)
-    radioscan =tk.Radiobutton(premiere_fenetre, text="hmmscan", value="hmmscan", var=choicecmd)
+    radiosearch =ttk.Radiobutton(premiere_fenetre, text="hmmsearch", value="hmmsearch", var=choicecmd)
+    radioscan =ttk.Radiobutton(premiere_fenetre, text="hmmscan", value="hmmscan", var=choicecmd)
 
     #Choisir les options de la recherche
-    LabelinputOptions=tk.Label(premiere_fenetre, text="Options:")
-    LabelinputEvalue=tk.Label(premiere_fenetre, text="E-value :")
-    LabelinputCvalue=tk.Label(premiere_fenetre, text="C-value :")
+    LabelinputOptions=ttk.Label(premiere_fenetre, text="Options:")
+    LabelinputEvalue=ttk.Label(premiere_fenetre, text="E-value :")
+    LabelinputCvalue=ttk.Label(premiere_fenetre, text="C-value :")
     evalue = tk.StringVar()
-    eforEValue =tk.Entry(premiere_fenetre, width=10, justify='center',textvariable=evalue)
-    eforCValue =tk.Entry(premiere_fenetre, width=10, justify='center')
+    eforEValue =ttk.Entry(premiere_fenetre, width=10, justify='center',textvariable=evalue)
+    eforCValue =ttk.Entry(premiere_fenetre, width=10, justify='center')
 
     #Boutton pour envoyer les informations
-    Bsubmit= tk.Button(premiere_fenetre, text ="Envoyé",
+    Bsubmit= ttk.Button(premiere_fenetre, text ="Envoyé",
     command=lambda:check_input(filename,choicecmd.get(),evalue.get(),premiere_fenetre))
 
     #Bouton pour retourner a l'accueil
-    Accueil= tk.Button(premiere_fenetre, text ="Retour accueil",
+    Accueil= ttk.Button(premiere_fenetre, text ="Retour accueil",
     command=lambda:retour_accueil(premiere_fenetre))
     #arrangement du layout
+    nom_file.grid(row=1,column=2,columnspan=3,sticky='w')
     premiere_fenetre.grid_columnconfigure(0, weight=1, minsize=20) #weight 1 permet de creer column vide
     premiere_fenetre.grid_columnconfigure(4, weight=1, minsize=20)
     premiere_fenetre.grid_rowconfigure(8, weight=1)
-    Labelinput.grid(row=0, column=1,sticky='w')
+    premiere_fenetre.grid_rowconfigure(2, weight=1)
+    Labelinput.grid(row=0, column=1,sticky='w',columnspan=2)
     browsebutton.grid(row=1,column=1,sticky='w')
     radiosearch.grid(row=3, column=1,sticky='w')
     radioscan.grid(row=4, column=1,sticky='w')
@@ -445,12 +449,16 @@ def accueil_fenetre():
     '''Fenetre d'accueil, propose de mettre a jour, lancer une
     recherche ou importer ces propres resultats
     '''
-    accueil = tk.Frame(wBestHMM)
-    maj = tk.Button(accueil,
+    accueil = ttk.Frame(wBestHMM)
+    photo = tk.PhotoImage(master = accueil,file='prot.png')
+    labelphoto = tk.Label(accueil,image=photo)
+    labelphoto.image = photo
+    labelphoto.grid()
+    maj = ttk.Button(accueil,
     text='Chercher une mise a jour',command=lambda:check_maj(accueil,maj))
-    suivant = tk.Button(accueil,
+    suivant = ttk.Button(accueil,
     text='Lancer recherche', command=lambda:retour_recherche(accueil))
-    import_resultat = tk.Button(accueil,
+    import_resultat = ttk.Button(accueil,
     text='Importer ses propres domtblout',command=lambda:OpenPersonalFile(accueil))
     maj.grid(row=5)
     suivant.grid(row=6)
@@ -458,6 +466,7 @@ def accueil_fenetre():
     for i in range(5,8):
         accueil.grid_rowconfigure(i, pad=50)
     accueil.grid()
+
 
 def retour_recherche(frame):
     '''Permet de retourner a la fenetre de recherche depuis
@@ -512,8 +521,8 @@ def update_tree(matrice,evalue,recouvrement,tree,labelresultat,frame):
     tree.column('four',width=100)
     tree.column('five',width=100)
     tree.column('six',width=100)
-    tree.column('7',width=100)
-    tree.column('8',width=100)
+    tree.column('7',width=20)
+    tree.column('8',width=20)
     tree.column('9',width=100)
     tree.column('10',width=100)
     tree.column('11',width=100)
@@ -548,7 +557,7 @@ def update_tree(matrice,evalue,recouvrement,tree,labelresultat,frame):
                 i[11],i[15],i[16],i[17],i[18]))
     #Met a jour le label indiquant le nombre de resultat
     labelresultat.grid_forget()
-    labelresultat = tk.Label(frame,
+    labelresultat = ttk.Label(frame,
     text='Resultat trouvé : {0}, après filtrage : {1}'.format(len(matrice),passe_selection))
     labelresultat.grid(row=1,columnspan=3,pady=20)
     tree.grid(row=2,columnspan=3)
@@ -556,10 +565,14 @@ def update_tree(matrice,evalue,recouvrement,tree,labelresultat,frame):
 #debut du script
 filename = ''
 ##Parametre de la fenetre
-wBestHMM=tk.Tk()
+
+wBestHMM=ttkthemes.themed_tk.ThemedTk(theme='plastik')
+
 wBestHMM.title("BestHMM")
+wBestHMM.resizable(False,False)
 # wBestHMM.geometry("1080x720")
 # wBestHMM.minsize(480,360)
 # wBestHMM.config(background="#ffcc99")
+
 accueil_fenetre()
 wBestHMM.mainloop()

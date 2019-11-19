@@ -1,3 +1,4 @@
 librairie/
 tmp
 mysqlconnect.py
+*.png
