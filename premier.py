@@ -1,7 +1,7 @@
 import tkinter as tk
 import tkinter.filedialog
 import tkinter.messagebox
-import ttkthemes
+import ttkthemes #a installer
 import subprocess
 import threading
 import time
@@ -14,32 +14,32 @@ import os
 import re
 
 
-def parsehmmsearch(frame_actuelle,file):
+def parsehmmsearch(frame,file):
     '''Creer une matrice contenant le domtblout parsé,
     verifie les dimensions de la matrice afin de s'assurer que le
     fichier fournis est un domtblout sinon envoie un message d'erreur,
     finalement retourne la matrice si les conditions sont rencontré
     '''
+    file ='tmp'
     matrice = []
     with open(file,'r') as f:
         ff =f.readlines()
         for line in ff[3:-10]:
             fin = re.split(r"\s+",line)
             matrice.append(fin)
+    print(matrice[0])
     try:
-        #25 colonne pour hmmscan, 28 pour hmmsearch
-        if len(matrice[0]) == 25 or len(matrice[0])==28:
+        #25 colonne pour hmmscan, 28 pour hmmsearch <- a changer
+        if len(matrice[0]) >= 20 or len(matrice[0])<=30:
             return matrice
         else:
             tk.messagebox.showerror('fichier non conforme',
             'Merci de fournir un fichier au format domtblout')
-            frame_actuelle.grid_forget()
-            accueil_fenetre()
+            retour_accueil(frame)
     except IndexError:
         tk.messagebox.showerror('fichier non conforme',
         'Merci de fournir un fichier au format domtblout')
-        frame_actuelle.grid_forget()
-        accueil_fenetre()
+        retour_accueil(frame)
 
 
 def check_maj(frame,button_maj):
@@ -56,7 +56,9 @@ def check_maj(frame,button_maj):
 
 
         reponse = reponse[0].split()
+        #Stock la date de derniere modification dans le fichier nbr_profile
         last_modified = '{0} {1} {2}'.format(reponse[-3],reponse[-4], reponse[-2])
+
         with open('./librairie/nbr_profile_pfam','r') as f:
             readf = f.readlines()
             nbr_profile = readf[0]
@@ -64,21 +66,18 @@ def check_maj(frame,button_maj):
 
         #affiche sur le GUI les informations
         button_maj.grid_forget()
-        curlabel = ttk.Label(frame,
-        text='Version actuelle : {}'.format(current_release)).grid(row=1)
-        nbrlabel = ttk.Label(frame,
-        text='Nombre de profile : {}'.format(nbr_profile)).grid(row=2)
-        lastlabel = ttk.Label(frame,
-        text='derniere version : {}'.format(last_modified)).grid(row=3)
+        tk.messagebox.showinfo('Mise à jour',
+        'Version actuelle : {0}\n\nNombre de profiles : {1}\nDerniere version : {2}'.format(
+        current_release,nbr_profile,last_modified))
 
         #Si une nouvelle version a telecharge propose
         if last_modified != current_release:
             majbutton = ttk.Button(frame, text='Mettre a jour',
-            command=lambda:download_pfam(last_modified,ftp,frame)).grid(row=4)
+            command=lambda:download_pfam(last_modified,ftp,frame)).grid(row=5,column=0)
 
         else:
             nomaj = ttk.Label(frame,
-            text='Aucune mise a jour disponible').grid(row=4)
+            text='Aucune mise a jour disponible').grid(row=5,column=0)
             ftp.close()
 
 
@@ -88,9 +87,10 @@ def check_maj(frame,button_maj):
 
 
 def download_pfam(last_modified,ftp,frame):
-    '''telecharge la derniere version de pfam et compte le nbr de profile
+    '''telecharge la derniere version de pfam et compte le nbr de profile,
     enregistre le nbr de profile et la date de la derniere version
-    dans nbr_profile_pfam
+    dans nbr_profile_pfam, Affiche une nouvelle fenetre indiquant
+    la progression du telechargement et le nbr de profile du nouveau fichier
     '''
     frame.grid_forget()
     update_pfam = ttk.Frame(wBestHMM)
@@ -102,13 +102,13 @@ def download_pfam(last_modified,ftp,frame):
 
 
     telechargement = ttk.Label(update_pfam,
-    text='La nouvelle librairie est en train d\'etre telecharge').grid()
+    text='La nouvelle librairie est en train d\'etre telecharge').grid(pady=50,padx=20)
 
     #Creer un bar de progres contenant la taille du fichier
     taille_fichier = ftp.size('Pfam-A.hmm.gz')
     progress_bar = ttk.Progressbar(update_pfam,
     length=650,maximum=taille_fichier)
-    progress_bar.grid()
+    progress_bar.grid(pady=50,padx=20)
     update_pfam.grid()
 
     #Lance le telechargement sur un autre thread
@@ -178,7 +178,7 @@ def troisieme_fenetrefunc(file):
     tree['columns']=('one','two','three','four','five','six','7','8','9','10','11','12','13')
     #tailles colonnes
     tree.column("#0",width=50)
-    tree.column("one",width=100,anchor=tk.CENTER)
+    tree.column("one",width=130,anchor=tk.CENTER)
     tree.column("two",width=50,anchor=tk.CENTER)
     tree.column("three",width=150,anchor=tk.CENTER)
     tree.column('four',width=50,anchor=tk.CENTER)
@@ -453,16 +453,16 @@ def accueil_fenetre():
     photo = tk.PhotoImage(master = accueil,file='prot.png')
     labelphoto = tk.Label(accueil,image=photo)
     labelphoto.image = photo
-    labelphoto.grid()
+    labelphoto.grid(row=1,columnspan=3)
     maj = ttk.Button(accueil,
     text='Chercher une mise a jour',command=lambda:check_maj(accueil,maj))
     suivant = ttk.Button(accueil,
     text='Lancer recherche', command=lambda:retour_recherche(accueil))
     import_resultat = ttk.Button(accueil,
     text='Importer ses propres domtblout',command=lambda:OpenPersonalFile(accueil))
-    maj.grid(row=5)
-    suivant.grid(row=6)
-    import_resultat.grid(row=7,padx=30)
+    maj.grid(row=5,column=0)
+    suivant.grid(row=5,column=1)
+    import_resultat.grid(row=5,padx=30,column=2)
     for i in range(5,8):
         accueil.grid_rowconfigure(i, pad=50)
     accueil.grid()
@@ -515,7 +515,7 @@ def update_tree(matrice,evalue,recouvrement,tree,labelresultat,frame):
     tree['columns']=('one','two','three','four','five','six','7','8','9','10','11','12','13')
     #tailles colonnes
     tree.column("#0",width=50)
-    tree.column("one",width=100)
+    tree.column("one",width=120)
     tree.column("two",width=100)
     tree.column("three",width=100)
     tree.column('four',width=100)
@@ -530,19 +530,19 @@ def update_tree(matrice,evalue,recouvrement,tree,labelresultat,frame):
     tree.column('13',width=100)
     #nom colonnes
     tree.heading('#0',text='select')
-    tree.heading('one',text='target')
-    tree.heading('two',text='tlen')
-    tree.heading('three',text='query')
-    tree.heading('four',text='qlen')
-    tree.heading('five',text='evalue')
-    tree.heading('six',text='score')
-    tree.heading('7',text='#')
-    tree.heading('8',text='of')
-    tree.heading('9',text='c-evalue')
-    tree.heading('10',text='hmm from')
-    tree.heading('11',text='hmm to')
-    tree.heading('12',text='ali to')
-    tree.heading('13',text='ali from')
+    tree.heading('one',text='target',anchor=tk.CENTER)
+    tree.heading('two',text='tlen',anchor=tk.CENTER)
+    tree.heading('three',text='query',anchor=tk.CENTER)
+    tree.heading('four',text='qlen',anchor=tk.CENTER)
+    tree.heading('five',text='evalue',anchor=tk.CENTER)
+    tree.heading('six',text='score',anchor=tk.CENTER)
+    tree.heading('7',text='#',anchor=tk.CENTER)
+    tree.heading('8',text='of',anchor=tk.CENTER)
+    tree.heading('9',text='c-evalue',anchor=tk.CENTER)
+    tree.heading('10',text='hmm from',anchor=tk.CENTER)
+    tree.heading('11',text='hmm to',anchor=tk.CENTER)
+    tree.heading('12',text='ali to',anchor=tk.CENTER)
+    tree.heading('13',text='ali from',anchor=tk.CENTER)
     #Pour chaque ligne du domtblout, les inseres si elles respectent les
     #conditions donnees
     j=0
@@ -566,7 +566,7 @@ def update_tree(matrice,evalue,recouvrement,tree,labelresultat,frame):
 filename = ''
 ##Parametre de la fenetre
 
-wBestHMM=ttkthemes.themed_tk.ThemedTk(theme='plastik')
+wBestHMM=ttkthemes.themed_tk.ThemedTk(theme='ubuntu')
 
 wBestHMM.title("BestHMM")
 wBestHMM.resizable(False,False)
