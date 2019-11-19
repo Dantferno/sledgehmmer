@@ -170,7 +170,7 @@ def troisieme_fenetrefunc(file):
     #stock dans matrice les resultats parsé (une ligne -> une liste)
     matrice = parsehmmsearch(troisieme_fenetre,file)
     labelresultat = tk.Label(troisieme_fenetre,
-    text='Resultat trouvé : {}'.format(len(matrice))).grid(row=1,columnspan=2,pady=20)
+    text='Resultat trouvé : {}'.format(len(matrice))).grid(row=1,columnspan=3,pady=20)
 
     def update_list(matrice,evalue,recouvrement,tree):
         '''Efface l'ancien tableau et le reconstruit en appliquant
@@ -226,7 +226,7 @@ def troisieme_fenetrefunc(file):
                 tree.insert('',j,text='',
                 values=(i[0],i[2],i[3],i[5],i[6],i[7],i[9],i[10],
                 i[11],i[15],i[16],i[17],i[18]))
-        tree.grid(row=2)
+        tree.grid(row=2,columnspan=3)
 
     #Creer un tableau des resultats
     tree = ttkwidgets.CheckboxTreeview(troisieme_fenetre, height=20)
@@ -269,7 +269,7 @@ def troisieme_fenetrefunc(file):
         values=(i[0],i[2],i[3],i[5],i[6],i[7],i[9],i[10],i[11],i[15],i[16],i[17],i[18]))
 
     tree.grid(row=2,columnspan=3)
-    filtre_label = tk.Label(troisieme_fenetre,text='Filtre :').grid(row=3)
+    filtre_label = tk.Label(troisieme_fenetre,text='').grid(row=3)
     #Choix evalue
     filtre_evalue_label = tk.Label(troisieme_fenetre,
     text='e-value inférieur à :').grid(row=4,column=0)
@@ -309,11 +309,12 @@ def troisieme_fenetrefunc(file):
     #Configuration du layout
     recouvrement.grid(row=5,column=1)
     send_check.grid(row=6,column=1)
-    NouvelleRecherche.grid(row=7,column=0)
-    Accueil.grid(row=8,column=2)
+    NouvelleRecherche.grid(row=6,column=2)
+    Accueil.grid(row=6,column=0)
     tk.Label(troisieme_fenetre).grid()
     troisieme_fenetre.grid(row=0, column=1,sticky='news')
     troisieme_fenetre.grid_rowconfigure(0, pad=50)
+    troisieme_fenetre.grid_rowconfigure(6, pad=50)
 
 def deuxieme_fenetrefunc(macmd,file):
     '''deuxieme_fenetre affichant les modeles en train d'etre query pour
@@ -352,7 +353,8 @@ def deuxieme_fenetrefunc(macmd,file):
         with subprocess.Popen("exec " + macmd, shell=True,
         stdout=subprocess.PIPE, bufsize=1, universal_newlines=True) as p:
             cancel_button = tk.Button(deuxieme_fenetre,
-            text='Retour', command=lambda:cancel_popen(p)).grid()
+            text='Retour', command=lambda:cancel_popen(p)).grid(row=4,
+            column=0,sticky='w',pady=25,padx=25)
             for line in p.stdout:
                 if line.startswith('Query:'):
                     avancement += 1
@@ -372,7 +374,8 @@ def deuxieme_fenetrefunc(macmd,file):
             tk.messagebox.showinfo('Succee',
             'processe termine en {} secondes'.format(time.time() - start_time))
             suivant = tk.Button(deuxieme_fenetre,text='suivant',
-            command=lambda:troisieme_fenetrefunc(file)).grid()
+            command=lambda:troisieme_fenetrefunc(file)).grid(row=4,
+            column=1,sticky='e',pady=25,padx=25)
 
     def cancel_popen(p):
         '''tue le thread si bouton retour est appuye et retourne sur
@@ -381,7 +384,7 @@ def deuxieme_fenetrefunc(macmd,file):
         fenetre()
 
 
-
+    #Cadre text recevant l'output de la commande
     output_text = tk.Text(deuxieme_fenetre, borderwidth=3, relief="sunken")
 
     #lance un thread separé pour popene afin de ne pas freeze le gui
@@ -389,9 +392,9 @@ def deuxieme_fenetrefunc(macmd,file):
     t1.start()
 
     #configuration du deuxieme frame
-    cmd_label.grid(row=1)
-    output_text.grid()
-    progress_bar.grid()
+    cmd_label.grid(row=1,columnspan=2)
+    output_text.grid(row=2,columnspan=2)
+    progress_bar.grid(row=3,columnspan=2)
 
     deuxieme_fenetre.grid(row=0, column=1,sticky='news')
     deuxieme_fenetre.grid_rowconfigure(0, pad=50)
