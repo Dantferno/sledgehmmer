@@ -11,26 +11,17 @@ import ttkwidgets #a installer
 import ftplib
 import os
 import re
-#123456789123456789123456789123456789123456789123456789123456789123456789
 
 
 def parsehmmsearch(file):
     '''Parse le fichier domtblout output -> '' ou fournit par l'user -> 'file' '''
     matrice = []
-    if file=='':
-        with open('tmp','r') as f:
-            ff =f.readlines()
-            for line in ff[3:-10]:
-                fin = re.split(r"\s+",line)
-                matrice.append(fin)
-        return matrice
-    else:
-        with open(file,'r') as f:
-            ff =f.readlines()
-            for line in ff[3:-10]:
-                fin = re.split(r"\s+",line)
-                matrice.append(fin)
-        return matrice
+    with open(file,'r') as f:
+        ff =f.readlines()
+        for line in ff[3:-10]:
+            fin = re.split(r"\s+",line)
+            matrice.append(fin)
+    return matrice
 
 
 def check_maj(frame,button_maj):
@@ -55,26 +46,33 @@ def check_maj(frame,button_maj):
 
         #affiche sur le GUI les informations
         button_maj.grid_forget()
-        curlabel = tk.Label(frame, text='Version actuelle : {}'.format(current_release)).grid(row=1)
-        nbrlabel = tk.Label(frame, text='Nombre de profile : {}'.format(nbr_profile)).grid(row=2)
-        lastlabel = tk.Label(frame, text='derniere version : {}'.format(last_modified)).grid(row=3)
+        curlabel = tk.Label(frame,
+        text='Version actuelle : {}'.format(current_release)).grid(row=1)
+        nbrlabel = tk.Label(frame,
+        text='Nombre de profile : {}'.format(nbr_profile)).grid(row=2)
+        lastlabel = tk.Label(frame,
+        text='derniere version : {}'.format(last_modified)).grid(row=3)
 
         #Si une nouvelle version a telecharge propose
         if last_modified != current_release:
-            majbutton = tk.Button(frame, text='Mettre a jour',command=lambda:download_pfam(last_modified,ftp,frame)).grid(row=4)
+            majbutton = tk.Button(frame, text='Mettre a jour',
+            command=lambda:download_pfam(last_modified,ftp,frame)).grid(row=4)
 
         else:
-            nomaj = tk.Label(frame,text='Aucune mise a jour disponible').grid(row=4)
+            nomaj = tk.Label(frame,
+            text='Aucune mise a jour disponible').grid(row=4)
             ftp.close()
 
 
     except Exception as e:
-        errorlabel = tk.messagebox.showerror('Erreur de connection','Verifie votre connection a internet {}'.format(e))
+        errorlabel = tk.messagebox.showerror('Erreur de connection',
+        'Verifie votre connection a internet {}'.format(e))
 
 
 def download_pfam(last_modified,ftp,frame):
     '''telecharge la derniere version de pfam et compte le nbr de profile
-    enregistre le nbr de profile et la date de la derniere version dans nbr_profile_pfam
+    enregistre le nbr de profile et la date de la derniere version
+    dans nbr_profile_pfam
     '''
     frame.grid_forget()
     update_pfam = tk.Frame(wBestHMM)
@@ -85,11 +83,13 @@ def download_pfam(last_modified,ftp,frame):
         ftp.close()
 
 
-    telechargement = tk.Label(update_pfam, text='La nouvelle librairie est en train d\'etre telecharge').grid()
+    telechargement = tk.Label(update_pfam,
+    text='La nouvelle librairie est en train d\'etre telecharge').grid()
 
     #Creer un bar de progres contenant la taille du fichier
     taille_fichier = ftp.size('Pfam-A.hmm.gz')
-    progress_bar = ttk.Progressbar(update_pfam, length=650,maximum=taille_fichier)
+    progress_bar = ttk.Progressbar(update_pfam,
+    length=650,maximum=taille_fichier)
     progress_bar.grid()
     update_pfam.grid()
 
@@ -97,22 +97,28 @@ def download_pfam(last_modified,ftp,frame):
     update_pfam.update()
     t1 = threading.Thread(target=download)
     t1.start()
-    #Pendant le telechargement la barre de progres augmente conjointement avec la taille de la librairie telecharge
+    #Pendant le telechargement la barre de progres augmente conjointement
+    #avec la taille de la librairie telecharge
     while t1.isAlive():
         update_pfam.update()
         progress_bar['value'] = os.path.getsize('./librairie/Pfam-A.hmm.gz')
     t1.join()
 
     #supprime l'ancienne librairie et decompresse le fichier
-    gunzip = tk.Label(update_pfam, text='La nouvelle librairie est en train d\'etre decompresse').grid()
+    gunzip = tk.Label(update_pfam,
+    text='La nouvelle librairie est en train d\'etre decompresse').grid()
     os.remove('./librairie/Pfam-A.hmm')
     subprocess.call('gunzip ./librairie/Pfam-A.hmm.gz', shell=True)
     update_pfam.update()
 
     #supprime les anciens indexes et hmmpress la nouvelle librairie
-    presslabel = tk.Label(update_pfam, text='La nouvelle librairie est en train d\' etre optimisé (hmmpress)').grid()
+    presslabel = tk.Label(update_pfam,
+    text='La nouvelle librairie est en train d\' etre optimisé (hmmpress)').grid()
     update_pfam.update()
-    pressfile = ['./librairie/Pfam-A.hmm.h3f','./librairie/Pfam-A.hmm.h3i','./librairie/Pfam-A.hmm.h3m','./librairie/Pfam-A.hmm.h3p']
+    pressfile = ['./librairie/Pfam-A.hmm.h3f',
+    './librairie/Pfam-A.hmm.h3i',
+    './librairie/Pfam-A.hmm.h3m',
+    './librairie/Pfam-A.hmm.h3p']
     for i in pressfile:
         if os.path.exists(i):
             os.remove(i)
@@ -124,16 +130,21 @@ def download_pfam(last_modified,ftp,frame):
         for line in f:
             if line.startswith('//'):
                 count +=1
-    count_profile = tk.Label(update_pfam, text='La nouvelle librarie contient {} profiles'.format(count)).grid()
+    count_profile = tk.Label(update_pfam,
+    text='La nouvelle librarie contient {} profiles'.format(count)).grid()
 
-    #enregistre dans un fichier persistant le nombre de profile et la date de la nouvelle_librairie
+    #enregistre dans un fichier persistant le nombre de profile
+    #et la date de la nouvelle_librairie
     with open('./librairie/nbr_profile_pfam','w') as f:
         f.write(str(count)+'\n')
         f.write(last_modified)
 
-    nouvelle_librairie = tk.Label(update_pfam, text='La nouvelle librarie est telecharge').grid()
-    suivant = tk.Button(update_pfam, text='Lancer recherche', command=lambda:fenetre_suivante(update_pfam)).grid()
-    import_resultat = tk.Button(update_pfam, text='Importer ses propres resultats').grid()
+    nouvelle_librairie = tk.Label(update_pfam,
+    text='La nouvelle librarie est telecharge').grid()
+    suivant = tk.Button(update_pfam,
+    text='Lancer recherche', command=lambda:fenetre_suivante(update_pfam)).grid()
+    import_resultat = tk.Button(update_pfam,
+    text='Importer ses propres resultats').grid()
 
 def troisieme_fenetrefunc(file):
     '''Fenetre affichant les resultats sous la forme d'un tableau '''
@@ -141,16 +152,19 @@ def troisieme_fenetrefunc(file):
 
     #stock dans matrice les resultats parsé (une ligne -> une liste)
     matrice = parsehmmsearch(file)
-    labelresultat = tk.Label(troisieme_fenetre, text='Resultat trouvé : {}'.format(len(matrice))).grid(row=1)
+    labelresultat = tk.Label(troisieme_fenetre,
+    text='Resultat trouvé : {}'.format(len(matrice))).grid(row=1)
 
     def update_list(matrice,evalue,recouvrement,tree):
-        #met a jour le tableau selon les conditions donnees
+        '''Efface l'ancien tableau et le reconstruit en appliquant
+        les conditions : evalue max et recouvrement mini'''
         j=0
         #verifie que la evalue est sous le bon format sinon retourne un message d'erreur
         try:
             evalue = float(evalue)
         except ValueError:
-            tk.messagebox.showerror(title='Erreur',message='La evalue doit etre un reel \nEcriture scientifique accepté sous la forme 1e-N')
+            tk.messagebox.showerror(title='Erreur',
+            message='La evalue doit etre un reel \nEcriture scientifique accepté sous la forme 1e-N')
             return False
         recouvrement = int(recouvrement)
         #Oublie l'ancien tableau et recreer le avec les conditions
@@ -187,16 +201,17 @@ def troisieme_fenetrefunc(file):
         tree.heading('11',text='hmm to')
         tree.heading('12',text='ali to')
         tree.heading('13',text='ali from')
+        #Pour chaque ligne du domtblout, les inseres si elles respectent les
+        #conditions donnees
         for i in matrice:
             j+=1
             if float(i[6])<=evalue:
-                tree.insert('',j,text='',values=(i[0],i[2],i[3],i[5],i[6],i[7],i[9],i[10],i[11],i[15],i[16],i[17],i[18]))
+                tree.insert('',j,text='',
+                values=(i[0],i[2],i[3],i[5],i[6],i[7],i[9],i[10],
+                i[11],i[15],i[16],i[17],i[18]))
         tree.grid(row=2)
 
-
-    #
-
-    #creer une liste des resultats
+    #Creer un tableau des resultats
     tree = ttkwidgets.CheckboxTreeview(troisieme_fenetre, height=20)
     tree['columns']=('one','two','three','four','five','six','7','8','9','10','11','12','13')
     #tailles colonnes
@@ -230,35 +245,46 @@ def troisieme_fenetrefunc(file):
     tree.heading('12',text='ali to')
     tree.heading('13',text='ali from')
     j=0
-
+    #Insere toutes les lignes du domtblout
     for i in matrice:
         j+=1
-        tree.insert('',j,text='',values=(i[0],i[2],i[3],i[5],i[6],i[7],i[9],i[10],i[11],i[15],i[16],i[17],i[18]))
+        tree.insert('',j,text='',
+        values=(i[0],i[2],i[3],i[5],i[6],i[7],i[9],i[10],
+        i[11],i[15],i[16],i[17],i[18]))
 
     tree.grid()
     filtre_label = tk.Label(troisieme_fenetre,text='Filtre :').grid()
     #Choix evalue
-    filtre_evalue_label = tk.Label(troisieme_fenetre,text='e-value inférieur à :').grid()
+    filtre_evalue_label = tk.Label(troisieme_fenetre,
+    text='e-value inférieur à :').grid()
     filtre_evalue = tk.StringVar()
-    filtre_evalue_entry = tk.Entry(troisieme_fenetre,textvariable=filtre_evalue).grid()
+    filtre_evalue_entry = tk.Entry(troisieme_fenetre,
+    textvariable=filtre_evalue).grid()
 
     #Choix recouvrement
-    filtre_recouvrement_label = tk.Label(troisieme_fenetre,text='% recouvrement min :').grid()
-    recouvrement = tk.Scale(troisieme_fenetre,from_=0,to=100,orient='horizontal')
+    filtre_recouvrement_label = tk.Label(troisieme_fenetre,
+    text='% recouvrement min :').grid()
+    recouvrement = tk.Scale(troisieme_fenetre,
+    from_=0,to=100,orient='horizontal')
 
     #bouton de mise a jour
-    majbutton = tk.Button(troisieme_fenetre,text='Mettre à jour',command=lambda:update_list(matrice,filtre_evalue.get(),recouvrement.get(),tree)).grid(row=7)
+    majbutton = tk.Button(troisieme_fenetre,
+    text='Mettre à jour',
+    command=lambda:update_list(matrice,filtre_evalue.get(),recouvrement.get(),tree)).grid(row=7)
     tk.Label(troisieme_fenetre).grid()
-    #configuration
-    def popup(tree):
+
+    def add_to_DB(tree):
+        '''Ajouter les lignes selectionne a la database mysql'''
         tk.messagebox.showinfo(title='coucou',message='{0}'.format(tree.get()))
 
-
-    send_check = tk.Button(troisieme_fenetre,text='Ajouter a la base de donnee',command=lambda:popup(recouvrement))
+    #Bouton d'ajout a la DB
+    send_check = tk.Button(troisieme_fenetre,
+    text='Ajouter a la base de donnee',
+    command=lambda:add_to_DB(recouvrement))
+    #Configuration du layout
     recouvrement.grid(row=6)
     send_check.grid(row=8)
     tk.Label(troisieme_fenetre).grid()
-
     troisieme_fenetre.grid(row=0, column=1,sticky='news')
     troisieme_fenetre.grid_rowconfigure(0, pad=50)
 
@@ -275,7 +301,8 @@ def deuxieme_fenetrefunc(macmd,file):
     start_time = time.time()
 
 
-    #Selon hmmcmd determine le nombre d'etape hmmsearch ->nbre de profil hmmscan_>nombre de seq
+    #Selon hmmcmd determine le nombre d'etape total et stock dans maxval
+    #hmmsearch ->nbre de profil hmmscan_>nombre de seq
     if macmd.startswith('hmmsearch'):
         with open('./librairie/nbr_profile_pfam','r') as f:
             maxval = int(f.readlines()[0])
@@ -288,11 +315,17 @@ def deuxieme_fenetrefunc(macmd,file):
 
     #output dynamique dans output_text et progressbar
     progress_bar = ttk.Progressbar(deuxieme_fenetre, length=650,maximum=maxval)
+
     def popene(output_text,macmd,progress_bar):
+        '''Execute la recherche hmmsearch ou scan (macmd), ecrit
+        l'output dans output_text et augmente conjointement la barre de progres
+        '''
         avancement = 0
         #ecris dans output_text l'output
-        with subprocess.Popen("exec " + macmd, shell=True, stdout=subprocess.PIPE, bufsize=1, universal_newlines=True) as p:
-            cancel_button = tk.Button(deuxieme_fenetre, text='Retour', command=lambda:cancel_popen(p)).grid()
+        with subprocess.Popen("exec " + macmd, shell=True,
+        stdout=subprocess.PIPE, bufsize=1, universal_newlines=True) as p:
+            cancel_button = tk.Button(deuxieme_fenetre,
+            text='Retour', command=lambda:cancel_popen(p)).grid()
             for line in p.stdout:
                 if line.startswith('Query:'):
                     avancement += 1
@@ -301,18 +334,22 @@ def deuxieme_fenetrefunc(macmd,file):
                     progress_bar['value'] = avancement
 
         #Si la commande rencontre un probleme affiche un message d'Erreur
-        #sinon execute la troisieme fenetre
+        #sinon execute la troisieme fenetre en appuyant sur le bouton suivant
         if p.returncode !=0:
-            tk.messagebox.showerror('Erreur', 'Une erreur s\'est produite lors de l\'execution')
+            tk.messagebox.showerror('Erreur',
+            'Une erreur s\'est produite lors de l\'execution')
         else:
             #A partir d'ici le fichier reference a l'output afin de rejoindre
             #l'importation d'un fichier personnel
             file='tmp'
-            tk.messagebox.showinfo('Succee', 'processe termine en {} secondes'.format(time.time() - start_time))
-            suivant = tk.Button(deuxieme_fenetre,text='suivant',command=lambda:troisieme_fenetrefunc(file)).grid()
+            tk.messagebox.showinfo('Succee',
+            'processe termine en {} secondes'.format(time.time() - start_time))
+            suivant = tk.Button(deuxieme_fenetre,text='suivant',
+            command=lambda:troisieme_fenetrefunc(file)).grid()
 
     def cancel_popen(p):
-        #tue le thread si bouton retour appuye
+        '''tue le thread si bouton retour est appuye et retourne sur
+        la fenetre de recherche'''
         p.kill()
         fenetre()
 
@@ -459,7 +496,6 @@ def OpenPersonalFile(frame):
 
 #debut du script
 filename = ''
-
 ##Parametre de la fenetre
 wBestHMM=tk.Tk()
 wBestHMM.title("BestHMM")
