@@ -333,7 +333,7 @@ def deuxieme_fenetrefunc(macmd,file):
 
 
     #Affiche la commande execute
-    nom_cmd = tk.Label(deuxieme_fenetre, text='Commande execute :').grid()
+    nom_cmd = tk.Label(deuxieme_fenetre, text='Commande execute :').grid(row=0,columnspan=2)
     cmd_label=tk.Label(deuxieme_fenetre, text=macmd)
     start_time = time.time()
 
@@ -401,12 +401,12 @@ def deuxieme_fenetrefunc(macmd,file):
     t1.start()
 
     #configuration du deuxieme frame
-    cmd_label.grid(row=1,columnspan=2)
+    cmd_label.grid(row=1,columnspan=2,pady=20,padx=10)
     output_text.grid(row=2,columnspan=2)
     progress_bar.grid(row=3,columnspan=2)
 
     deuxieme_fenetre.grid(row=0, column=1,sticky='news')
-    deuxieme_fenetre.grid_rowconfigure(0, pad=50)
+    deuxieme_fenetre.grid_rowconfigure(0, pad=10)
 
 
 def fenetre():
