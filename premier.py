@@ -20,26 +20,25 @@ def parsehmmsearch(frame,file):
     fichier fournis est un domtblout sinon envoie un message d'erreur,
     finalement retourne la matrice si les conditions sont rencontré
     '''
-    file ='tmp'
     matrice = []
     with open(file,'r') as f:
         ff =f.readlines()
         for line in ff[3:-10]:
             fin = re.split(r"\s+",line)
             matrice.append(fin)
-    print(matrice[0])
-    try:
-        #25 colonne pour hmmscan, 28 pour hmmsearch <- a changer
-        if len(matrice[0]) >= 20 or len(matrice[0])<=30:
-            return matrice
-        else:
+        try:
+            program = ff[-9]
+            #25 colonne pour hmmscan, 28 pour hmmsearch <- a changer
+            if 'hmmsearch' in program or 'hmmscan' in program:
+                return matrice
+            else:
+                tk.messagebox.showerror('fichier non conforme',
+                'Merci de fournir un fichier au format domtblout')
+                retour_accueil(frame)
+        except IndexError:
             tk.messagebox.showerror('fichier non conforme',
             'Merci de fournir un fichier au format domtblout')
             retour_accueil(frame)
-    except IndexError:
-        tk.messagebox.showerror('fichier non conforme',
-        'Merci de fournir un fichier au format domtblout')
-        retour_accueil(frame)
 
 
 def check_maj(frame,button_maj):
@@ -402,8 +401,8 @@ def fenetre():
     Accueil.grid(row=8,column=1,sticky='w')
     eforEValue.insert(0,"10")
     eforCValue.insert(0,"10")
-    Labelinput.config(font=("song ti", 14))
-    LabelinputOptions.config(font=("song ti", 14))
+    # Labelinput.config(font=("song ti", 14))
+    # LabelinputOptions.config(font=("song ti", 14))
     #Ajoute pour chaque ligne un padding
     for i in range(12):
         if i !=2:
@@ -514,35 +513,35 @@ def update_tree(matrice,evalue,recouvrement,tree,labelresultat,frame):
     tree = ttkwidgets.CheckboxTreeview(frame, height=20)
     tree['columns']=('one','two','three','four','five','six','7','8','9','10','11','12','13')
     #tailles colonnes
-    tree.column("#0",width=50)
-    tree.column("one",width=120)
-    tree.column("two",width=100)
-    tree.column("three",width=100)
-    tree.column('four',width=100)
-    tree.column('five',width=100)
-    tree.column('six',width=100)
-    tree.column('7',width=20)
-    tree.column('8',width=20)
-    tree.column('9',width=100)
-    tree.column('10',width=100)
-    tree.column('11',width=100)
-    tree.column('12',width=100)
-    tree.column('13',width=100)
+    tree.column("#0",width=50,anchor=tk.CENTER)
+    tree.column("one",width=130,anchor=tk.CENTER)
+    tree.column("two",width=50,anchor=tk.CENTER)
+    tree.column("three",width=150,anchor=tk.CENTER)
+    tree.column('four',width=50,anchor=tk.CENTER)
+    tree.column('five',width=100,anchor=tk.CENTER)
+    tree.column('six',width=100,anchor=tk.CENTER)
+    tree.column('7',width=20,anchor=tk.CENTER)
+    tree.column('8',width=20,anchor=tk.CENTER)
+    tree.column('9',width=100,anchor=tk.CENTER)
+    tree.column('10',width=100,anchor=tk.CENTER)
+    tree.column('11',width=100,anchor=tk.CENTER)
+    tree.column('12',width=100,anchor=tk.CENTER)
+    tree.column('13',width=100,anchor=tk.CENTER)
     #nom colonnes
     tree.heading('#0',text='select')
-    tree.heading('one',text='target',anchor=tk.CENTER)
-    tree.heading('two',text='tlen',anchor=tk.CENTER)
-    tree.heading('three',text='query',anchor=tk.CENTER)
-    tree.heading('four',text='qlen',anchor=tk.CENTER)
-    tree.heading('five',text='evalue',anchor=tk.CENTER)
-    tree.heading('six',text='score',anchor=tk.CENTER)
-    tree.heading('7',text='#',anchor=tk.CENTER)
-    tree.heading('8',text='of',anchor=tk.CENTER)
-    tree.heading('9',text='c-evalue',anchor=tk.CENTER)
-    tree.heading('10',text='hmm from',anchor=tk.CENTER)
-    tree.heading('11',text='hmm to',anchor=tk.CENTER)
-    tree.heading('12',text='ali to',anchor=tk.CENTER)
-    tree.heading('13',text='ali from',anchor=tk.CENTER)
+    tree.heading('one',text='target')
+    tree.heading('two',text='tlen')
+    tree.heading('three',text='query')
+    tree.heading('four',text='qlen')
+    tree.heading('five',text='evalue')
+    tree.heading('six',text='score')
+    tree.heading('7',text='#')
+    tree.heading('8',text='of')
+    tree.heading('9',text='c-evalue')
+    tree.heading('10',text='hmm from')
+    tree.heading('11',text='hmm to')
+    tree.heading('12',text='ali to')
+    tree.heading('13',text='ali from')
     #Pour chaque ligne du domtblout, les inseres si elles respectent les
     #conditions donnees
     j=0
