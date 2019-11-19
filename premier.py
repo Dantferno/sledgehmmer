@@ -172,70 +172,6 @@ def troisieme_fenetrefunc(file):
     labelresultat = tk.Label(troisieme_fenetre,
     text='Resultat trouvé : {}'.format(len(matrice)))
 
-    def update_list(matrice,evalue,recouvrement,tree,labelresultat):
-        '''Efface l'ancien tableau et le reconstruit en appliquant
-        les conditions : evalue max et recouvrement mini'''
-        j=0
-        #verifie que la evalue est sous le bon format sinon retourne un message d'erreur
-        try:
-            evalue = float(evalue)
-        except ValueError:
-            tk.messagebox.showerror(title='Erreur',
-            message='La evalue doit etre un reel \nEcriture scientifique accepté sous la forme 1e-N')
-            return False
-        recouvrement = int(recouvrement)
-        #Oublie l'ancien tableau et recreer le avec les conditions
-        tree.grid_remove()
-        tree = ttkwidgets.CheckboxTreeview(troisieme_fenetre, height=20)
-        tree['columns']=('one','two','three','four','five','six','7','8','9','10','11','12','13')
-        #tailles colonnes
-        tree.column("#0",width=50)
-        tree.column("one",width=100)
-        tree.column("two",width=100)
-        tree.column("three",width=100)
-        tree.column('four',width=100)
-        tree.column('five',width=100)
-        tree.column('six',width=100)
-        tree.column('7',width=100)
-        tree.column('8',width=100)
-        tree.column('9',width=100)
-        tree.column('10',width=100)
-        tree.column('11',width=100)
-        tree.column('12',width=100)
-        tree.column('13',width=100)
-        #nom colonnes
-        tree.heading('#0',text='select')
-        tree.heading('one',text='target')
-        tree.heading('two',text='tlen')
-        tree.heading('three',text='query')
-        tree.heading('four',text='qlen')
-        tree.heading('five',text='evalue')
-        tree.heading('six',text='score')
-        tree.heading('7',text='#')
-        tree.heading('8',text='of')
-        tree.heading('9',text='c-evalue')
-        tree.heading('10',text='hmm from')
-        tree.heading('11',text='hmm to')
-        tree.heading('12',text='ali to')
-        tree.heading('13',text='ali from')
-        #Pour chaque ligne du domtblout, les inseres si elles respectent les
-        #conditions donnees
-        passe_selection =0
-        for i in matrice:
-            j+=1
-            if float(i[6])<=evalue:
-                if int(recouvrement) <= (int(i[16])-int(i[15]))/int(i[5])*100:
-                    passe_selection += 1
-                    tree.insert('',j,text='',
-                    values=(i[0],i[2],i[3],i[5],i[6],i[7],i[9],i[10],
-                    i[11],i[15],i[16],i[17],i[18]))
-        #Met a jour le label indiquant le nombre de resultat
-        labelresultat.grid_forget()
-        labelresultat = tk.Label(troisieme_fenetre,
-        text='Resultat trouvé : {0}, après filtrage : {1}'.format(len(matrice),passe_selection))
-        labelresultat.grid(row=1,columnspan=3,pady=20)
-        tree.grid(row=2,columnspan=3)
-
     #Creer un tableau des resultats
     tree = ttkwidgets.CheckboxTreeview(troisieme_fenetre, height=20)
     tree['columns']=('one','two','three','four','five','six','7','8','9','10','11','12','13')
@@ -295,17 +231,17 @@ def troisieme_fenetrefunc(file):
     #bouton de mise a jour
     majbutton = tk.Button(troisieme_fenetre,
     text='Mettre à jour',
-    command=lambda:update_list(matrice,filtre_evalue.get(),recouvrement.get(),tree,labelresultat)).grid(row=5,column=2)
+    command=lambda:update_tree(matrice,filtre_evalue.get(),recouvrement.get(),tree,labelresultat,troisieme_fenetre)).grid(row=5,column=2)
     tk.Label(troisieme_fenetre).grid()
 
     def add_to_DB(tree):
         '''Ajouter les lignes selectionne a la database mysql'''
-        tk.messagebox.showinfo(title='coucou',message='{0}'.format(tree.get()))
+        tk.messagebox.showinfo(title='coucou',message='{0}'.format(tree.get_checked()))
 
     #Bouton d'ajout a la DB
     send_check = tk.Button(troisieme_fenetre,
     text='Ajouter a la base de donnee',
-    command=lambda:add_to_DB(recouvrement))
+    command=lambda:add_to_DB(tree))
     #Bouton retour recherche
     NouvelleRecherche = tk.Button(troisieme_fenetre,
     text='Nouvelle recherche',
@@ -553,6 +489,69 @@ def OpenPersonalFile(frame):
         frame.grid_forget()
         troisieme_fenetrefunc(persoFile)
 
+def update_tree(matrice,evalue,recouvrement,tree,labelresultat,frame):
+    '''Efface l'ancien tableau et le reconstruit en appliquant
+    les conditions : evalue max et recouvrement mini'''
+    #verifie que la evalue est sous le bon format sinon retourne un message d'erreur
+    try:
+        evalue = float(evalue)
+    except ValueError:
+        tk.messagebox.showerror(title='Erreur',
+        message='La evalue doit etre un reel \nEcriture scientifique accepté sous la forme 1e-N')
+        return False
+    recouvrement = int(recouvrement)
+    #Oublie l'ancien tableau et recreer le avec les conditions
+    tree.grid_remove()
+    tree = ttkwidgets.CheckboxTreeview(frame, height=20)
+    tree['columns']=('one','two','three','four','five','six','7','8','9','10','11','12','13')
+    #tailles colonnes
+    tree.column("#0",width=50)
+    tree.column("one",width=100)
+    tree.column("two",width=100)
+    tree.column("three",width=100)
+    tree.column('four',width=100)
+    tree.column('five',width=100)
+    tree.column('six',width=100)
+    tree.column('7',width=100)
+    tree.column('8',width=100)
+    tree.column('9',width=100)
+    tree.column('10',width=100)
+    tree.column('11',width=100)
+    tree.column('12',width=100)
+    tree.column('13',width=100)
+    #nom colonnes
+    tree.heading('#0',text='select')
+    tree.heading('one',text='target')
+    tree.heading('two',text='tlen')
+    tree.heading('three',text='query')
+    tree.heading('four',text='qlen')
+    tree.heading('five',text='evalue')
+    tree.heading('six',text='score')
+    tree.heading('7',text='#')
+    tree.heading('8',text='of')
+    tree.heading('9',text='c-evalue')
+    tree.heading('10',text='hmm from')
+    tree.heading('11',text='hmm to')
+    tree.heading('12',text='ali to')
+    tree.heading('13',text='ali from')
+    #Pour chaque ligne du domtblout, les inseres si elles respectent les
+    #conditions donnees
+    j=0
+    passe_selection =0
+    for i in matrice:
+        j+=1
+        if float(i[6])<=evalue:
+            if int(recouvrement) <= (int(i[16])-int(i[15]))/int(i[5])*100:
+                passe_selection += 1
+                tree.insert('',j,text='',
+                values=(i[0],i[2],i[3],i[5],i[6],i[7],i[9],i[10],
+                i[11],i[15],i[16],i[17],i[18]))
+    #Met a jour le label indiquant le nombre de resultat
+    labelresultat.grid_forget()
+    labelresultat = tk.Label(frame,
+    text='Resultat trouvé : {0}, après filtrage : {1}'.format(len(matrice),passe_selection))
+    labelresultat.grid(row=1,columnspan=3,pady=20)
+    tree.grid(row=2,columnspan=3)
 
 #debut du script
 filename = ''
