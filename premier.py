@@ -13,15 +13,31 @@ import os
 import re
 
 
-def parsehmmsearch(file):
-    '''Parse le fichier domtblout output -> '' ou fournit par l'user -> 'file' '''
+def parsehmmsearch(frame_actuelle,file):
+    '''Creer une matrice contenant le domtblout parsé,
+    verifie les dimensions de la matrice afin de s'assurer que le
+    fichier fournis est un domtblout sinon envoie un message d'erreur
+    '''
     matrice = []
     with open(file,'r') as f:
         ff =f.readlines()
         for line in ff[3:-10]:
             fin = re.split(r"\s+",line)
             matrice.append(fin)
-    return matrice
+    try:
+        #25 colonne pour hmmscan, 28 pour hmmsearch
+        if len(matrice[0]) == 25 or len(matrice[0])==28:
+            return matrice
+        else:
+            tk.messagebox.showerror('fichier non conforme',
+            'Merci de fournir un fichier au format domtblout')
+            frame_actuelle.grid_forget()
+            accueil_fenetre()
+    except IndexError:
+        tk.messagebox.showerror('fichier non conforme',
+        'Merci de fournir un fichier au format domtblout')
+        frame_actuelle.grid_forget()
+        accueil_fenetre()
 
 
 def check_maj(frame,button_maj):
@@ -151,7 +167,7 @@ def troisieme_fenetrefunc(file):
     troisieme_fenetre = tk.Frame()
 
     #stock dans matrice les resultats parsé (une ligne -> une liste)
-    matrice = parsehmmsearch(file)
+    matrice = parsehmmsearch(troisieme_fenetre,file)
     labelresultat = tk.Label(troisieme_fenetre,
     text='Resultat trouvé : {}'.format(len(matrice))).grid(row=1)
 
@@ -249,8 +265,7 @@ def troisieme_fenetrefunc(file):
     for i in matrice:
         j+=1
         tree.insert('',j,text='',
-        values=(i[0],i[2],i[3],i[5],i[6],i[7],i[9],i[10],
-        i[11],i[15],i[16],i[17],i[18]))
+        values=(i[0],i[2],i[3],i[5],i[6],i[7],i[9],i[10],i[11],i[15],i[16],i[17],i[18]))
 
     tree.grid()
     filtre_label = tk.Label(troisieme_fenetre,text='Filtre :').grid()
@@ -466,12 +481,12 @@ def accueil_fenetre():
     recherche ou importer ces propres resultats
     '''
     accueil = tk.Frame(wBestHMM)
-
-
-
-    maj = tk.Button(accueil, text='Chercher une mise a jour',command=lambda:check_maj(accueil,maj))
-    suivant = tk.Button(accueil, text='Lancer recherche', command=lambda:fenetre_suivante(accueil))
-    import_resultat = tk.Button(accueil, text='Importer ses propres domtblout',command=lambda:OpenPersonalFile(accueil))
+    maj = tk.Button(accueil,
+    text='Chercher une mise a jour',command=lambda:check_maj(accueil,maj))
+    suivant = tk.Button(accueil,
+    text='Lancer recherche', command=lambda:fenetre_suivante(accueil))
+    import_resultat = tk.Button(accueil,
+    text='Importer ses propres domtblout',command=lambda:OpenPersonalFile(accueil))
     maj.grid(row=5)
     suivant.grid(row=6)
     import_resultat.grid(row=7)
