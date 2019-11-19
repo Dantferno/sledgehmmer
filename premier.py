@@ -11,10 +11,11 @@ import ttkwidgets #a installer
 import ftplib
 import os
 import re
+#123456789123456789123456789123456789123456789123456789123456789123456789
 
 
 def parsehmmsearch(file):
-    #Parse le fichier domtblout output -> '' ou fournit par l'user -> 'file'
+    '''Parse le fichier domtblout output -> '' ou fournit par l'user -> 'file' '''
     matrice = []
     if file=='':
         with open('tmp','r') as f:
@@ -33,8 +34,9 @@ def parsehmmsearch(file):
 
 
 def check_maj(frame,button_maj):
-    #cherche la derniere maj de Pfam-a.hmm sur le serveur FTP et compare a celle local
-    #si differente execute download_pfam si bouton appuye
+    '''Cherche la derniere maj de Pfam-a.hmm sur le serveur FTP et compare
+    a celle local si differente execute download_pfam si bouton MAJ appuye
+    '''
     try:
         #si une erreur intervient dans ce block un message d'erreur est retourne (erreur de connection)
         ftp = ftplib.FTP('ftp.ebi.ac.uk')
@@ -59,7 +61,8 @@ def check_maj(frame,button_maj):
 
         #Si une nouvelle version a telecharge propose
         if last_modified != current_release:
-            majbutton = tk.Button(frame, text='Mettre a jour', command=lambda:download_pfam(last_modified,ftp,frame)).grid(row=4)
+            majbutton = tk.Button(frame, text='Mettre a jour',command=lambda:download_pfam(last_modified,ftp,frame)).grid(row=4)
+
         else:
             nomaj = tk.Label(frame,text='Aucune mise a jour disponible').grid(row=4)
             ftp.close()
@@ -70,8 +73,9 @@ def check_maj(frame,button_maj):
 
 
 def download_pfam(last_modified,ftp,frame):
-    #telecharge la derniere version de pfam et compte le nbr de profile
-    #enregistre le nbr de profile et la date de la derniere version dans nbr_profile_pfam
+    '''telecharge la derniere version de pfam et compte le nbr de profile
+    enregistre le nbr de profile et la date de la derniere version dans nbr_profile_pfam
+    '''
     frame.grid_forget()
     update_pfam = tk.Frame(wBestHMM)
 
@@ -132,6 +136,7 @@ def download_pfam(last_modified,ftp,frame):
     import_resultat = tk.Button(update_pfam, text='Importer ses propres resultats').grid()
 
 def troisieme_fenetrefunc(file):
+    '''Fenetre affichant les resultats sous la forme d'un tableau '''
     troisieme_fenetre = tk.Frame()
 
     #stock dans matrice les resultats parsé (une ligne -> une liste)
@@ -258,7 +263,9 @@ def troisieme_fenetrefunc(file):
     troisieme_fenetre.grid_rowconfigure(0, pad=50)
 
 def deuxieme_fenetrefunc(macmd,file):
-    #Deuxieme fenetre
+    '''deuxieme_fenetre affichant les modeles en train d'etre query pour
+    hmmsearch ou les sequences query pour hmmscan avec une barre de progres
+    '''
     deuxieme_fenetre = tk.Frame(wBestHMM)
 
 
@@ -292,17 +299,20 @@ def deuxieme_fenetrefunc(macmd,file):
                     output_text.insert(tk.END, line)
                     output_text.see(tk.END)
                     progress_bar['value'] = avancement
-                    # progress_bar.update_idletasks()
-                    # output_text.update_idletasks()
+
+        #Si la commande rencontre un probleme affiche un message d'Erreur
+        #sinon execute la troisieme fenetre
         if p.returncode !=0:
             tk.messagebox.showerror('Erreur', 'Une erreur s\'est produite lors de l\'execution')
         else:
-            file=''
+            #A partir d'ici le fichier reference a l'output afin de rejoindre
+            #l'importation d'un fichier personnel
+            file='tmp'
             tk.messagebox.showinfo('Succee', 'processe termine en {} secondes'.format(time.time() - start_time))
             suivant = tk.Button(deuxieme_fenetre,text='suivant',command=lambda:troisieme_fenetrefunc(file)).grid()
 
     def cancel_popen(p):
-        #tue l
+        #tue le thread si bouton retour appuye
         p.kill()
         fenetre()
 
@@ -321,10 +331,12 @@ def deuxieme_fenetrefunc(macmd,file):
 
     deuxieme_fenetre.grid(row=0, column=1,sticky='news')
     deuxieme_fenetre.grid_rowconfigure(0, pad=50)
-    # deuxieme_fenetre.update_idletasks()
+
 
 def fenetre():
-    #frame de la premiere fenetre
+    '''Fenetre de choix de la recherche, propose de choisir un fichier
+    fasta, hmmsearch ou hmmscan, et une evalue seuil
+    '''
     premiere_fenetre = tk.Frame(wBestHMM)
     #Rentrer un fichier fasta
     Labelinput=tk.Label(premiere_fenetre, text="Rentrer un fichier fasta")
@@ -382,7 +394,7 @@ def fenetre():
     premiere_fenetre.grid(row=0, column=1,sticky='news')
 
 def check_fasta(file):
-    #Check si le fasta est valide
+    '''Check si le fasta est valide en utilisant biopython'''
     try:
         with open(file, "r") as f:
             fasta = Bio.SeqIO.parse(f, "fasta")
@@ -391,7 +403,10 @@ def check_fasta(file):
         return False
 
 def check_input(file,choicecmd,evalue):
-    #check que l'input est un fasta, que la cmd est selectionne et que la evalue est valable
+    '''Verifie que l'input est un fasta, que la cmd est selectionne
+    et que la evalue est valable. Si les conditions sont rencontré,
+    deuxieme_fenetrefunc() est execute avec la commande adequate
+    '''
     try:
         evalue = float(evalue)
         evalue_ok = True
@@ -412,6 +427,9 @@ def check_input(file,choicecmd,evalue):
         deuxieme_fenetrefunc(command,file)
 
 def accueil_fenetre():
+    '''Fenetre d'accueil, propose de mettre a jour, lancer une
+    recherche ou importer ces propres resultats
+    '''
     accueil = tk.Frame(wBestHMM)
 
 
@@ -425,10 +443,17 @@ def accueil_fenetre():
     accueil.grid()
 
 def fenetre_suivante(frame):
+    '''Permet de retourner a la fenetre de recherche depuis
+    n'importe quelle autre fenetre
+    '''
     frame.grid_forget()
     fenetre()
 
 def OpenPersonalFile(frame):
+    '''Commande execute si l'utilisateur decide d'importer ces propres
+    resultats, lance la fenetre d'affichage des resultats avec
+    le fichier selectionné
+    '''
     persoFile = tk.filedialog.askopenfilename()
     frame.grid_forget()
     troisieme_fenetrefunc(persoFile)
