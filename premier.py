@@ -223,9 +223,10 @@ def troisieme_fenetrefunc(file):
         for i in matrice:
             j+=1
             if float(i[6])<=evalue:
-                tree.insert('',j,text='',
-                values=(i[0],i[2],i[3],i[5],i[6],i[7],i[9],i[10],
-                i[11],i[15],i[16],i[17],i[18]))
+                if int(recouvrement) <= (int(i[16])-int(i[15]))/int(i[5])*100:
+                    tree.insert('',j,text='',
+                    values=(i[0],i[2],i[3],i[5],i[6],i[7],i[9],i[10],
+                    i[11],i[15],i[16],i[17],i[18]))
         tree.grid(row=2,columnspan=3)
 
     #Creer un tableau des resultats
