@@ -16,7 +16,8 @@ import re
 def parsehmmsearch(frame_actuelle,file):
     '''Creer une matrice contenant le domtblout parsé,
     verifie les dimensions de la matrice afin de s'assurer que le
-    fichier fournis est un domtblout sinon envoie un message d'erreur
+    fichier fournis est un domtblout sinon envoie un message d'erreur,
+    finalement retourne la matrice si les conditions sont rencontré
     '''
     matrice = []
     with open(file,'r') as f:
@@ -76,7 +77,7 @@ def check_maj(frame,button_maj):
 
         else:
             nomaj = tk.Label(frame,
-            text='Aucune mise a jour disponible').grid(row=4)
+            text='Aucune mise a jour disponible',fg='red').grid(row=4)
             ftp.close()
 
 
@@ -158,7 +159,7 @@ def download_pfam(last_modified,ftp,frame):
     nouvelle_librairie = tk.Label(update_pfam,
     text='La nouvelle librarie est telecharge').grid()
     suivant = tk.Button(update_pfam,
-    text='Lancer recherche', command=lambda:fenetre_suivante(update_pfam)).grid()
+    text='Lancer recherche', command=lambda:retour_recherche(update_pfam)).grid()
     import_resultat = tk.Button(update_pfam,
     text='Importer ses propres resultats').grid()
 
@@ -169,7 +170,7 @@ def troisieme_fenetrefunc(file):
     #stock dans matrice les resultats parsé (une ligne -> une liste)
     matrice = parsehmmsearch(troisieme_fenetre,file)
     labelresultat = tk.Label(troisieme_fenetre,
-    text='Resultat trouvé : {}'.format(len(matrice))).grid(row=1)
+    text='Resultat trouvé : {}'.format(len(matrice))).grid(row=1,columnspan=2,pady=20)
 
     def update_list(matrice,evalue,recouvrement,tree):
         '''Efface l'ancien tableau et le reconstruit en appliquant
@@ -267,25 +268,26 @@ def troisieme_fenetrefunc(file):
         tree.insert('',j,text='',
         values=(i[0],i[2],i[3],i[5],i[6],i[7],i[9],i[10],i[11],i[15],i[16],i[17],i[18]))
 
-    tree.grid()
-    filtre_label = tk.Label(troisieme_fenetre,text='Filtre :').grid()
+    tree.grid(row=2,columnspan=3)
+    filtre_label = tk.Label(troisieme_fenetre,text='Filtre :').grid(row=3)
     #Choix evalue
     filtre_evalue_label = tk.Label(troisieme_fenetre,
-    text='e-value inférieur à :').grid()
+    text='e-value inférieur à :').grid(row=4,column=0)
     filtre_evalue = tk.StringVar()
     filtre_evalue_entry = tk.Entry(troisieme_fenetre,
-    textvariable=filtre_evalue).grid()
-
+    textvariable=filtre_evalue,width=10, justify='center')
+    filtre_evalue_entry.insert(0,'10')
+    filtre_evalue_entry.grid(row=5,column=0)
     #Choix recouvrement
     filtre_recouvrement_label = tk.Label(troisieme_fenetre,
-    text='% recouvrement min :').grid()
+    text='% recouvrement min :').grid(row=4,column=1)
     recouvrement = tk.Scale(troisieme_fenetre,
     from_=0,to=100,orient='horizontal')
 
     #bouton de mise a jour
     majbutton = tk.Button(troisieme_fenetre,
     text='Mettre à jour',
-    command=lambda:update_list(matrice,filtre_evalue.get(),recouvrement.get(),tree)).grid(row=7)
+    command=lambda:update_list(matrice,filtre_evalue.get(),recouvrement.get(),tree)).grid(row=5,column=2)
     tk.Label(troisieme_fenetre).grid()
 
     def add_to_DB(tree):
@@ -296,9 +298,19 @@ def troisieme_fenetrefunc(file):
     send_check = tk.Button(troisieme_fenetre,
     text='Ajouter a la base de donnee',
     command=lambda:add_to_DB(recouvrement))
+    #Bouton retour recherche
+    NouvelleRecherche = tk.Button(troisieme_fenetre,
+    text='Nouvelle recherche',
+    command=lambda:retour_recherche(troisieme_fenetre))
+    #bouton retour accueil
+    Accueil = tk.Button(troisieme_fenetre,
+    text='Retour accueil',
+    command=lambda:retour_accueil(troisieme_fenetre))
     #Configuration du layout
-    recouvrement.grid(row=6)
-    send_check.grid(row=8)
+    recouvrement.grid(row=5,column=1)
+    send_check.grid(row=6,column=1)
+    NouvelleRecherche.grid(row=7,column=0)
+    Accueil.grid(row=8,column=2)
     tk.Label(troisieme_fenetre).grid()
     troisieme_fenetre.grid(row=0, column=1,sticky='news')
     troisieme_fenetre.grid_rowconfigure(0, pad=50)
@@ -408,8 +420,8 @@ def fenetre():
 
     #Choisir les options de la recherche
     LabelinputOptions=tk.Label(premiere_fenetre, text="Options:")
-    LabelinputEvalue=tk.Label(premiere_fenetre, text="E-value")
-    LabelinputCvalue=tk.Label(premiere_fenetre, text="C-value")
+    LabelinputEvalue=tk.Label(premiere_fenetre, text="E-value :")
+    LabelinputCvalue=tk.Label(premiere_fenetre, text="C-value :")
     evalue = tk.StringVar()
     eforEValue =tk.Entry(premiere_fenetre, width=10, justify='center',textvariable=evalue)
     eforCValue =tk.Entry(premiere_fenetre, width=10, justify='center')
@@ -418,6 +430,9 @@ def fenetre():
     Bsubmit= tk.Button(premiere_fenetre, text ="Envoyé",
     command=lambda:check_input(filename,choicecmd.get(),evalue.get()))
 
+    #Bouton pour retourner a l'accueil
+    Accueil= tk.Button(premiere_fenetre, text ="Retour accueil",
+    command=lambda:retour_accueil(premiere_fenetre))
     #arrangement du layout
     premiere_fenetre.grid_columnconfigure(0, weight=1, minsize=20) #weight 1 permet de creer column vide
     premiere_fenetre.grid_columnconfigure(4, weight=1, minsize=20)
@@ -432,6 +447,7 @@ def fenetre():
     eforEValue.grid(row=6, column=2)
     eforCValue.grid(row=7, column=2)
     Bsubmit.grid(row=8, column=3,sticky='e')
+    Accueil.grid(row=8,column=1,sticky='w')
     eforEValue.insert(0,"10")
     eforCValue.insert(0,"10")
     Labelinput.config(font=("song ti", 14))
@@ -484,20 +500,29 @@ def accueil_fenetre():
     maj = tk.Button(accueil,
     text='Chercher une mise a jour',command=lambda:check_maj(accueil,maj))
     suivant = tk.Button(accueil,
-    text='Lancer recherche', command=lambda:fenetre_suivante(accueil))
+    text='Lancer recherche', command=lambda:retour_recherche(accueil))
     import_resultat = tk.Button(accueil,
     text='Importer ses propres domtblout',command=lambda:OpenPersonalFile(accueil))
     maj.grid(row=5)
     suivant.grid(row=6)
-    import_resultat.grid(row=7)
+    import_resultat.grid(row=7,padx=30)
+    for i in range(5,8):
+        accueil.grid_rowconfigure(i, pad=50)
     accueil.grid()
 
-def fenetre_suivante(frame):
+def retour_recherche(frame):
     '''Permet de retourner a la fenetre de recherche depuis
     n'importe quelle autre fenetre
     '''
     frame.grid_forget()
     fenetre()
+
+def retour_accueil(frame):
+    '''Permet de retourner a la fenetre de recherche depuis
+    n'importe quelle autre fenetre
+    '''
+    frame.grid_forget()
+    accueil_fenetre()
 
 def OpenPersonalFile(frame):
     '''Commande execute si l'utilisateur decide d'importer ces propres
@@ -515,7 +540,7 @@ filename = ''
 wBestHMM=tk.Tk()
 wBestHMM.title("BestHMM")
 # wBestHMM.geometry("1080x720")
-wBestHMM.minsize(480,360)
+# wBestHMM.minsize(480,360)
 # wBestHMM.config(background="#ffcc99")
 accueil_fenetre()
 wBestHMM.mainloop()
