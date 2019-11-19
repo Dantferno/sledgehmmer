@@ -170,9 +170,9 @@ def troisieme_fenetrefunc(file):
     #stock dans matrice les resultats parsé (une ligne -> une liste)
     matrice = parsehmmsearch(troisieme_fenetre,file)
     labelresultat = tk.Label(troisieme_fenetre,
-    text='Resultat trouvé : {}'.format(len(matrice))).grid(row=1,columnspan=3,pady=20)
+    text='Resultat trouvé : {}'.format(len(matrice)))
 
-    def update_list(matrice,evalue,recouvrement,tree):
+    def update_list(matrice,evalue,recouvrement,tree,labelresultat):
         '''Efface l'ancien tableau et le reconstruit en appliquant
         les conditions : evalue max et recouvrement mini'''
         j=0
@@ -220,13 +220,20 @@ def troisieme_fenetrefunc(file):
         tree.heading('13',text='ali from')
         #Pour chaque ligne du domtblout, les inseres si elles respectent les
         #conditions donnees
+        passe_selection =0
         for i in matrice:
             j+=1
             if float(i[6])<=evalue:
                 if int(recouvrement) <= (int(i[16])-int(i[15]))/int(i[5])*100:
+                    passe_selection += 1
                     tree.insert('',j,text='',
                     values=(i[0],i[2],i[3],i[5],i[6],i[7],i[9],i[10],
                     i[11],i[15],i[16],i[17],i[18]))
+        #Met a jour le label indiquant le nombre de resultat
+        labelresultat.grid_forget()
+        labelresultat = tk.Label(troisieme_fenetre,
+        text='Resultat trouvé : {0}, après filtrage : {1}'.format(len(matrice),passe_selection))
+        labelresultat.grid(row=1,columnspan=3,pady=20)
         tree.grid(row=2,columnspan=3)
 
     #Creer un tableau des resultats
@@ -288,7 +295,7 @@ def troisieme_fenetrefunc(file):
     #bouton de mise a jour
     majbutton = tk.Button(troisieme_fenetre,
     text='Mettre à jour',
-    command=lambda:update_list(matrice,filtre_evalue.get(),recouvrement.get(),tree)).grid(row=5,column=2)
+    command=lambda:update_list(matrice,filtre_evalue.get(),recouvrement.get(),tree,labelresultat)).grid(row=5,column=2)
     tk.Label(troisieme_fenetre).grid()
 
     def add_to_DB(tree):
@@ -308,6 +315,7 @@ def troisieme_fenetrefunc(file):
     text='Retour accueil',
     command=lambda:retour_accueil(troisieme_fenetre))
     #Configuration du layout
+    labelresultat.grid(row=1,columnspan=3,pady=20)
     recouvrement.grid(row=5,column=1)
     send_check.grid(row=6,column=1)
     NouvelleRecherche.grid(row=6,column=2)
@@ -375,7 +383,7 @@ def deuxieme_fenetrefunc(macmd,file):
             tk.messagebox.showinfo('Succee',
             'processe termine en {} secondes'.format(time.time() - start_time))
             suivant = tk.Button(deuxieme_fenetre,text='suivant',
-            command=lambda:troisieme_fenetrefunc(file)).grid(row=4,
+            command=lambda:aller_troisieme_fenetre(deuxieme_fenetre,file)).grid(row=4,
             column=1,sticky='e',pady=25,padx=25)
 
     def cancel_popen(p):
@@ -432,7 +440,7 @@ def fenetre():
 
     #Boutton pour envoyer les informations
     Bsubmit= tk.Button(premiere_fenetre, text ="Envoyé",
-    command=lambda:check_input(filename,choicecmd.get(),evalue.get()))
+    command=lambda:check_input(filename,choicecmd.get(),evalue.get(),premiere_fenetre))
 
     #Bouton pour retourner a l'accueil
     Accueil= tk.Button(premiere_fenetre, text ="Retour accueil",
@@ -472,7 +480,7 @@ def check_fasta(file):
     except FileNotFoundError:
         return False
 
-def check_input(file,choicecmd,evalue):
+def check_input(file,choicecmd,evalue,frame):
     '''Verifie que l'input est un fasta, que la cmd est selectionne
     et que la evalue est valable. Si les conditions sont rencontré,
     deuxieme_fenetrefunc() est execute avec la commande adequate
@@ -494,6 +502,7 @@ def check_input(file,choicecmd,evalue):
             command = '{0} --domtblout tmp --noali -E {2} ./librairie/Pfam-A.hmm {1} '.format(choicecmd,filename,evalue)
         elif choicecmd=='hmmscan':
             command = '{0} --domtblout tmp --noali -E {2} ./librairie/Pfam-A.hmm {1} '.format(choicecmd,filename,evalue)
+        frame.grid_forget()
         deuxieme_fenetrefunc(command,file)
 
 def accueil_fenetre():
@@ -522,11 +531,15 @@ def retour_recherche(frame):
     fenetre()
 
 def retour_accueil(frame):
-    '''Permet de retourner a la fenetre de recherche depuis
+    '''Permet de retourner a la fenetre d'accueil depuis
     n'importe quelle autre fenetre
     '''
     frame.grid_forget()
     accueil_fenetre()
+
+def aller_troisieme_fenetre(frame,file):
+    frame.grid_forget()
+    troisieme_fenetrefunc(file)
 
 def OpenPersonalFile(frame):
     '''Commande execute si l'utilisateur decide d'importer ces propres
@@ -534,8 +547,11 @@ def OpenPersonalFile(frame):
     le fichier selectionné
     '''
     persoFile = tk.filedialog.askopenfilename()
-    frame.grid_forget()
-    troisieme_fenetrefunc(persoFile)
+    #Test si un fichier a ete choisi, tkinter.filedialog return () ou ''
+    #si cancel selectionne
+    if str(persoFile) != '()' and str(persoFile) != '':
+        frame.grid_forget()
+        troisieme_fenetrefunc(persoFile)
 
 
 #debut du script
