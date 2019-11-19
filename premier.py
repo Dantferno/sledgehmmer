@@ -337,16 +337,16 @@ def fenetre():
     '''Fenetre de choix de la recherche, propose de choisir un fichier
     fasta, hmmsearch ou hmmscan, et une evalue seuil
     '''
-    premiere_fenetre = tk.Frame(wBestHMM)
-    #Rentrer un fichier fasta
-    Labelinput=tk.Label(premiere_fenetre, text="Rentrer un fichier fasta")
 
     def Openfile():
+        '''Demande a l'utilisateur de choisir un fichier'''
         global filename
         filename = tk.filedialog.askopenfilename()
         nom_file = tk.Label(premiere_fenetre,text=filename).grid(row=2,column=1)
 
-
+    premiere_fenetre = tk.Frame(wBestHMM)
+    #Rentrer un fichier fasta
+    Labelinput=tk.Label(premiere_fenetre, text="Rentrer un fichier fasta")
     browsebutton = tk.Button(premiere_fenetre, text="Parcourir", command=Openfile)
 
     #Choisir entre hmmsearch et hmmscan
@@ -356,17 +356,15 @@ def fenetre():
 
     #Choisir les options de la recherche
     LabelinputOptions=tk.Label(premiere_fenetre, text="Options:")
-
     LabelinputEvalue=tk.Label(premiere_fenetre, text="E-value")
-
     LabelinputCvalue=tk.Label(premiere_fenetre, text="C-value")
     evalue = tk.StringVar()
     eforEValue =tk.Entry(premiere_fenetre, width=10, justify='center',textvariable=evalue)
-
     eforCValue =tk.Entry(premiere_fenetre, width=10, justify='center')
 
-    #envoye les informations
-    Bsubmit= tk.Button(premiere_fenetre, text ="Envoyé", command=lambda:check_input(filename,choicecmd.get(),evalue.get()))
+    #Boutton pour envoyer les informations
+    Bsubmit= tk.Button(premiere_fenetre, text ="Envoyé",
+    command=lambda:check_input(filename,choicecmd.get(),evalue.get()))
 
     #arrangement du layout
     premiere_fenetre.grid_columnconfigure(0, weight=1, minsize=20) #weight 1 permet de creer column vide
