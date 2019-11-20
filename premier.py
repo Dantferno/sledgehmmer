@@ -163,9 +163,13 @@ def download_pfam(last_modified,ftp,frame):
     import_resultat = ttk.Button(update_pfam,
     text='Importer ses propres resultats').grid()
 
-def add_to_DB(tree):
+def add_to_DB(tree,index_indices):
     '''Ajouter les lignes selectionne a la database mysql'''
-    tk.messagebox.showinfo(title='coucou',message='{0}'.format(tree.get_checked()))
+    aaaaa = []
+    for i in tree.get_checked():
+        aaaaa.append(index_indices[i])
+
+    tk.messagebox.showinfo(title='coucou',message='{0}'.format(aaaaa))
 
 
 def troisieme_fenetrefunc(file):
@@ -211,11 +215,14 @@ def troisieme_fenetrefunc(file):
     tree.heading('12',text='ali to')
     tree.heading('13',text='ali from')
     j=0
+    #dictionnaire pour associer les elements de la matrice avec les checkbox
+    index_indices = {}
     #Insere toutes les lignes du domtblout
     for i in matrice:
-        j+=1
-        tree.insert('',j,text='',
+        indice = tree.insert('',j,text='',
         values=(i[0],i[2],i[3],i[5],i[6],i[7],i[9],i[10],i[11],i[15],i[16],i[17],i[18]))
+        index_indices[indice] = (i[0],i[2],i[3],i[5],i[6],i[7],i[9],i[10],i[11],i[15],i[16],i[17],i[18])
+        j+=1
 
     tree.grid(row=2,columnspan=3)
     filtre_label = ttk.Label(troisieme_fenetre,text='').grid(row=3)
@@ -242,7 +249,7 @@ def troisieme_fenetrefunc(file):
     #Bouton d'ajout a la DB
     send_check = ttk.Button(troisieme_fenetre,
     text='Ajouter a la base de donnee',
-    command=lambda:add_to_DB(tree))
+    command=lambda:add_to_DB(tree,index_indices))
     #Bouton retour recherche
     NouvelleRecherche = ttk.Button(troisieme_fenetre,
     text='Nouvelle recherche',
@@ -553,14 +560,17 @@ def update_tree(matrice,evalue,recouvrement,tree,labelresultat,frame):
     #conditions donnees
     j=0
     passe_selection =0
+    index_indices = {}
     for i in matrice:
         j+=1
         if float(i[6])<=evalue:
             if int(recouvrement) <= (int(i[16])-int(i[15]))/int(i[5])*100:
-                passe_selection += 1
-                tree.insert('',j,text='',
+                indice = tree.insert('',j,text='',
                 values=(i[0],i[2],i[3],i[5],i[6],i[7],i[9],i[10],
                 i[11],i[15],i[16],i[17],i[18]))
+                index_indices[indice] = (i[0],i[2],i[3],i[5],i[6],i[7],i[9],i[10],
+                i[11],i[15],i[16],i[17],i[18])
+                passe_selection += 1
     #Met a jour le label indiquant le nombre de resultat
     labelresultat.grid_forget()
     labelresultat = ttk.Label(frame,
@@ -570,7 +580,7 @@ def update_tree(matrice,evalue,recouvrement,tree,labelresultat,frame):
     #Bouton d'ajout a la DB
     send_check = ttk.Button(frame,
     text='Ajouter a la base de donnee',
-    command=lambda:add_to_DB(tree))
+    command=lambda:add_to_DB(tree,index_indices))
     send_check.grid(row=6,column=1)
     tree.grid(row=2,columnspan=3)
 
