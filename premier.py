@@ -163,6 +163,11 @@ def download_pfam(last_modified,ftp,frame):
     import_resultat = ttk.Button(update_pfam,
     text='Importer ses propres resultats').grid()
 
+def add_to_DB(tree):
+    '''Ajouter les lignes selectionne a la database mysql'''
+    tk.messagebox.showinfo(title='coucou',message='{0}'.format(tree.get_checked()))
+
+
 def troisieme_fenetrefunc(file):
     '''Fenetre affichant les resultats sous la forme d'un tableau '''
     troisieme_fenetre = ttk.Frame()
@@ -233,10 +238,6 @@ def troisieme_fenetrefunc(file):
     text='Mettre à jour',
     command=lambda:update_tree(matrice,filtre_evalue.get(),recouvrement.get(),tree,labelresultat,troisieme_fenetre)).grid(row=5,column=2)
     ttk.Label(troisieme_fenetre).grid()
-
-    def add_to_DB(tree):
-        '''Ajouter les lignes selectionne a la database mysql'''
-        tk.messagebox.showinfo(title='coucou',message='{0}'.format(tree.get_checked()))
 
     #Bouton d'ajout a la DB
     send_check = ttk.Button(troisieme_fenetre,
@@ -358,6 +359,10 @@ def fenetre():
 
     premiere_fenetre = ttk.Frame(wBestHMM)
     nom_file = ttk.Label(premiere_fenetre,text='')
+    #image hmmer
+    photo = tk.PhotoImage(master = premiere_fenetre,file='hmmer_logo.png')
+    labelphoto = tk.Label(premiere_fenetre,image=photo)
+    labelphoto.image = photo
     #Rentrer un fichier fasta
     Labelinput=ttk.Label(premiere_fenetre, text="Rentrer un fichier fasta")
     browsebutton = ttk.Button(premiere_fenetre, text="Parcourir", command=Openfile)
@@ -383,13 +388,14 @@ def fenetre():
     Accueil= ttk.Button(premiere_fenetre, text ="Retour accueil",
     command=lambda:retour_accueil(premiere_fenetre))
     #arrangement du layout
+    labelphoto.grid(row=0,column=1,columnspan=3)
     nom_file.grid(row=1,column=2,columnspan=3,sticky='w')
     premiere_fenetre.grid_columnconfigure(0, weight=1, minsize=20) #weight 1 permet de creer column vide
     premiere_fenetre.grid_columnconfigure(4, weight=1, minsize=20)
     premiere_fenetre.grid_rowconfigure(8, weight=1)
     premiere_fenetre.grid_rowconfigure(2, weight=1)
-    Labelinput.grid(row=0, column=1,sticky='w',columnspan=2)
-    browsebutton.grid(row=1,column=1,sticky='w')
+    Labelinput.grid(row=1, column=1,sticky='w',columnspan=2)
+    browsebutton.grid(row=2,column=1,sticky='w')
     radiosearch.grid(row=3, column=1,sticky='w')
     radioscan.grid(row=4, column=1,sticky='w')
     LabelinputOptions.grid(row=5, column=1,sticky='w')
@@ -416,7 +422,7 @@ def check_fasta(file):
         with open(file, "r") as f:
             fasta = Bio.SeqIO.parse(f, "fasta")
             return any(fasta)  # False when `fasta` is empty, i.e. wasn't a FASTA file
-    except FileNotFoundError:
+    except (FileNotFoundError,TypeError):
         return False
 
 def check_input(file,choicecmd,evalue,frame):
@@ -508,8 +514,9 @@ def update_tree(matrice,evalue,recouvrement,tree,labelresultat,frame):
         message='La evalue doit etre un reel \nEcriture scientifique accepté sous la forme 1e-N')
         return False
     recouvrement = int(recouvrement)
+
     #Oublie l'ancien tableau et recreer le avec les conditions
-    tree.grid_remove()
+    tree.grid_forget()
     tree = ttkwidgets.CheckboxTreeview(frame, height=20)
     tree['columns']=('one','two','three','four','five','six','7','8','9','10','11','12','13')
     #tailles colonnes
@@ -559,6 +566,12 @@ def update_tree(matrice,evalue,recouvrement,tree,labelresultat,frame):
     labelresultat = ttk.Label(frame,
     text='Résultats trouvés : {0}, après filtrage : {1}'.format(len(matrice),passe_selection))
     labelresultat.grid(row=1,columnspan=3,pady=20)
+
+    #Bouton d'ajout a la DB
+    send_check = ttk.Button(frame,
+    text='Ajouter a la base de donnee',
+    command=lambda:add_to_DB(tree))
+    send_check.grid(row=6,column=1)
     tree.grid(row=2,columnspan=3)
 
 #debut du script
