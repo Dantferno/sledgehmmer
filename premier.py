@@ -406,7 +406,7 @@ def fenetre():
     #Ajoute pour chaque ligne un padding
     for i in range(12):
         if i !=2:
-            premiere_fenetre.grid_rowconfigure(i, pad=50)
+            premiere_fenetre.grid_rowconfigure(i, pad=20)
     premiere_fenetre.grid_columnconfigure(3, pad=100)
     premiere_fenetre.grid(row=0, column=1,sticky='news')
 
@@ -461,7 +461,7 @@ def accueil_fenetre():
     text='Importer ses propres domtblout',command=lambda:OpenPersonalFile(accueil))
     maj.grid(row=5,column=0)
     suivant.grid(row=5,column=1)
-    import_resultat.grid(row=5,padx=30,column=2)
+    import_resultat.grid(row=5,column=2)
     for i in range(5,8):
         accueil.grid_rowconfigure(i, pad=50)
     accueil.grid()
@@ -557,7 +557,7 @@ def update_tree(matrice,evalue,recouvrement,tree,labelresultat,frame):
     #Met a jour le label indiquant le nombre de resultat
     labelresultat.grid_forget()
     labelresultat = ttk.Label(frame,
-    text='Resultat trouvé : {0}, après filtrage : {1}'.format(len(matrice),passe_selection))
+    text='Résultats trouvés : {0}, après filtrage : {1}'.format(len(matrice),passe_selection))
     labelresultat.grid(row=1,columnspan=3,pady=20)
     tree.grid(row=2,columnspan=3)
 
@@ -569,7 +569,7 @@ wBestHMM=ttkthemes.themed_tk.ThemedTk(theme='ubuntu')
 
 wBestHMM.title("BestHMM")
 wBestHMM.resizable(False,False)
-# wBestHMM.geometry("1080x720")
+# wBestHMM.geometry("1000x820")
 # wBestHMM.minsize(480,360)
 # wBestHMM.config(background="#ffcc99")
 
