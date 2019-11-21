@@ -237,8 +237,8 @@ def troisieme_fenetrefunc(file):
     #Choix recouvrement
     filtre_recouvrement_label = ttk.Label(troisieme_fenetre,
     text='% recouvrement min :').grid(row=4,column=1)
-    recouvrement = ttk.Scale(troisieme_fenetre,
-    from_=0,to=100,orient='horizontal')
+    recouvrement = ttkwidgets.TickScale(troisieme_fenetre,
+    from_=0,to=100,orient='horizontal',resolution=1,length=200)
 
     #bouton de mise a jour
     majbutton = ttk.Button(troisieme_fenetre,
@@ -429,7 +429,7 @@ def check_fasta(file):
         with open(file, "r") as f:
             fasta = Bio.SeqIO.parse(f, "fasta")
             return any(fasta)  # False when `fasta` is empty, i.e. wasn't a FASTA file
-    except (FileNotFoundError,TypeError):
+    except (FileNotFoundError,TypeError,UnicodeDecodeError):
         return False
 
 def check_input(file,choicecmd,evalue,frame):
