@@ -383,7 +383,7 @@ class Results(ttk.Frame):
 
 
         #stock dans matrice les resultats parsé (une ligne -> une liste)
-        self.matrice = parsehmmer(self,self.result_file)
+        self.matrice = self.parsehmmer()
         self.labelresultat = ttk.Label(self,
         text='Resultat trouvé : {}'.format(len(self.matrice)))
 
@@ -424,7 +424,7 @@ class Results(ttk.Frame):
         #dictionnaire pour associer les elements de la matrice avec les checkbox
         self.index_indices = {}
         #Insere toutes les lignes du domtblout
-        for i in self.matrice:
+        for i in self.matrice[1:]:
             indice = self.tree.insert('',j,text='',
             values=(i[0],i[2],i[3],i[5],i[6],i[7],i[9],i[10],i[11],i[15],i[16],i[17],i[18]))
             self.index_indices[indice] = (i[0],i[2],i[3],i[5],i[6],i[7],i[9],i[10],i[11],i[15],i[16],i[17],i[18])
@@ -473,6 +473,39 @@ class Results(ttk.Frame):
         self.grid_rowconfigure(0, pad=50)
         self.grid_rowconfigure(6, pad=50)
         self.grid()
+
+
+    def parsehmmer(self):
+        '''Creer une matrice contenant le domtblout parsé,
+        verifie les dimensions de la matrice afin de s'assurer que le
+        fichier fournis est un domtblout sinon envoie un message d'erreur,
+        finalement retourne la matrice si les conditions sont rencontré
+        Chaque ligne de la matrice correspond a une ligne du domtblout
+        le programme (scan ou search) est enregistre dans matrice[0]
+        '''
+        self.matrice = []
+        try:
+            with open(self.result_file,'r') as f:
+                ff =f.readlines()
+                program = ff[-9] #hmmer indique le programme utilise ici
+                if 'hmmsearch' in program:
+                    self.matrice.append('hmmsearch')
+                elif 'hmmscan' in program:
+                    self.matrice.append('hmmscan')
+                else:
+                    tk.messagebox.showerror('fichier non conforme',
+                    'Merci de fournir un fichier au format domtblout')
+                    self.fenetre_accueil
+                for line in ff[3:-10]:
+                    fin = re.split(r"\s+",line)
+                    self.matrice.append(fin)
+            return self.matrice
+        except IndexError:
+            tk.messagebox.showerror('fichier non conforme',
+            'Merci de fournir un fichier au format domtblout')
+            self.fenetre_accueil
+
+
 
     def update_tree(self):
         '''Efface l'ancien tableau et le reconstruit en appliquant
@@ -525,16 +558,28 @@ class Results(ttk.Frame):
         j=0
         passe_selection =0
         self.index_indices = {}
-        for i in self.matrice:
-            j+=1
-            if float(i[6])<=evalue:
-                if int(recouvrement) <= (int(i[16])-int(i[15]))/int(i[5])*100:
-                    indice = self.tree.insert('',j,text='',
-                    values=(i[0],i[2],i[3],i[5],i[6],i[7],i[9],i[10],
-                    i[11],i[15],i[16],i[17],i[18]))
-                    self.index_indices[indice] = (i[0],i[2],i[3],i[5],i[6],i[7],i[9],i[10],
-                    i[11],i[15],i[16],i[17],i[18])
-                    passe_selection += 1
+        if self.matrice[0] == 'hmmsearch':
+            for i in self.matrice[1:]:
+                j+=1
+                if float(i[6])<=evalue:
+                    if int(recouvrement) <= (int(i[16])-int(i[15])+1)/int(i[5])*100:
+                        indice = self.tree.insert('',j,text='',
+                        values=(i[0],i[2],i[3],i[5],i[6],i[7],i[9],i[10],
+                        i[11],i[15],i[16],i[17],i[18]))
+                        self.index_indices[indice] = (i[0],i[2],i[3],i[5],i[6],i[7],i[9],i[10],
+                        i[11],i[15],i[16],i[17],i[18])
+                        passe_selection += 1
+        else:
+            for i in self.matrice[1:]:
+                j+=1
+                if float(i[6])<=evalue:
+                    if int(recouvrement) <= (int(i[16])-int(i[15])+1)/int(i[2])*100:
+                        indice = self.tree.insert('',j,text='',
+                        values=(i[0],i[2],i[3],i[5],i[6],i[7],i[9],i[10],
+                        i[11],i[15],i[16],i[17],i[18]))
+                        self.index_indices[indice] = (i[0],i[2],i[3],i[5],i[6],i[7],i[9],i[10],
+                        i[11],i[15],i[16],i[17],i[18])
+                        passe_selection += 1
         #Met a jour le label indiquant le nombre de resultat
         self.labelresultat.grid_forget()
         self.labelresultat = ttk.Label(self,
@@ -557,13 +602,25 @@ class Results(ttk.Frame):
 
     def fenetre_recherche(self):
         '''Permet d'aller a la fenetre de recherche'''
+        self.save_file()
         self.grid_forget()
         Recherche(self.master)
 
     def fenetre_accueil(self):
+        self.save_file()
         self.grid_forget()
         Accueil(self.master)
 
+    def save_file(self):
+        ''' Save the domtblout file if user want to '''
+        if tk.messagebox.askyesno('Enregistrement','Voulez-vous sauvegarger vos résultats avant de quitter ?') :
+            f = tk.filedialog.asksaveasfile(mode='w', defaultextension=".txt")
+            if f is None: # asksaveasfile return `None` if dialog closed with "cancel".
+                return
+            with open('tmp','r') as t:
+                text2save = t.read()
+            f.write(text2save)
+            f.close()
 
 wBestHMM=ttkthemes.themed_tk.ThemedTk(theme='ubuntu')
 
