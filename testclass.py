@@ -389,44 +389,33 @@ class Results(ttk.Frame):
 
         #Creer un tableau des resultats
         self.tree = ttkwidgets.CheckboxTreeview(self, height=20)
-        self.tree['columns']=('one','two','three','four','five','six','7','8','9','10','11','12','13')
+        self.tree['columns']=('target','tlen','query','qlen','evalue','score','#','of','c-evalue','hmm from','hmm to','ali from','ali to')
         #tailles colonnes
         self.tree.column("#0",width=50)
-        self.tree.column("one",width=130,anchor=tk.CENTER)
-        self.tree.column("two",width=50,anchor=tk.CENTER)
-        self.tree.column("three",width=150,anchor=tk.CENTER)
-        self.tree.column('four',width=50,anchor=tk.CENTER)
-        self.tree.column('five',width=100,anchor=tk.CENTER)
-        self.tree.column('six',width=100,anchor=tk.CENTER)
-        self.tree.column('7',width=20,anchor=tk.CENTER)
-        self.tree.column('8',width=20,anchor=tk.CENTER)
-        self.tree.column('9',width=100,anchor=tk.CENTER)
-        self.tree.column('10',width=100,anchor=tk.CENTER)
-        self.tree.column('11',width=100,anchor=tk.CENTER)
-        self.tree.column('12',width=100,anchor=tk.CENTER)
-        self.tree.column('13',width=100,anchor=tk.CENTER)
+        self.tree.column("target",width=130,anchor=tk.CENTER)
+        self.tree.column("tlen",width=50,anchor=tk.CENTER)
+        self.tree.column("query",width=150,anchor=tk.CENTER)
+        self.tree.column('qlen',width=50,anchor=tk.CENTER)
+        self.tree.column('evalue',width=100,anchor=tk.CENTER)
+        self.tree.column('score',width=100,anchor=tk.CENTER)
+        self.tree.column('#',width=20,anchor=tk.CENTER)
+        self.tree.column('of',width=20,anchor=tk.CENTER)
+        self.tree.column('c-evalue',width=100,anchor=tk.CENTER)
+        self.tree.column('hmm from',width=100,anchor=tk.CENTER)
+        self.tree.column('hmm to',width=100,anchor=tk.CENTER)
+        self.tree.column('ali from',width=100,anchor=tk.CENTER)
+        self.tree.column('ali to',width=100,anchor=tk.CENTER)
         #nom colonnes
-        self.tree.heading('#0',text='')
-        self.tree.heading('one',text='target')
-        self.tree.heading('two',text='tlen')
-        self.tree.heading('three',text='query')
-        self.tree.heading('four',text='qlen')
-        self.tree.heading('five',text='evalue')
-        self.tree.heading('six',text='score')
-        self.tree.heading('7',text='#')
-        self.tree.heading('8',text='of')
-        self.tree.heading('9',text='c-evalue')
-        self.tree.heading('10',text='hmm from')
-        self.tree.heading('11',text='hmm to')
-        self.tree.heading('12',text='ali to')
-        self.tree.heading('13',text='ali from')
+        for col in self.tree['columns']:
+            self.tree.heading(col,text=col,command=lambda _col=col:self.tree_sort_column(_col,False))
+
         j=0
         #dictionnaire pour associer les elements de la matrice avec les checkbox
         self.index_indices = {}
         #Insere toutes les lignes du domtblout
         for i in self.matrice[1:]:
             indice = self.tree.insert('',j,text='',
-            values=(i[0],i[2],i[3],i[5],i[6],i[7],i[9],i[10],i[11],i[15],i[16],i[17],i[18]))
+            values=(i[0],int(i[2]),i[3],int(i[5]),float(i[6]),float(i[7]),int(i[9]),int(i[10]),float(i[11]),int(i[15]),int(i[16]),int(i[17]),int(i[18])))
             self.index_indices[indice] = (i[0],i[2],i[3],i[5],i[6],i[7],i[9],i[10],i[11],i[15],i[16],i[17],i[18])
             j+=1
 
@@ -506,6 +495,17 @@ class Results(ttk.Frame):
             self.fenetre_accueil
 
 
+    def tree_sort_column(self,col,reverse):
+        l = [(self.tree.set(k, col), k) for k in self.tree.get_children('')]
+        try:
+            l.sort(key=lambda t: float(t[0]), reverse=reverse)
+
+        except ValueError:
+            l.sort(key=lambda v: v[0].upper(),reverse=reverse)
+        for index, (val, k) in enumerate(l):
+            self.tree.move(k, '', index)
+        # reverse sort next time
+        self.tree.heading(col, command=lambda:self.tree_sort_column(col,not reverse))
 
     def update_tree(self):
         '''Efface l'ancien tableau et le reconstruit en appliquant
@@ -621,6 +621,8 @@ class Results(ttk.Frame):
                 text2save = t.read()
             f.write(text2save)
             f.close()
+
+
 
 wBestHMM=ttkthemes.themed_tk.ThemedTk(theme='ubuntu')
 
