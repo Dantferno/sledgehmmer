@@ -21,10 +21,10 @@ class Accueil(ttk.Frame):
         ttk.Frame.__init__(self, master)
         self.master = master
 
-        # self.photo = tk.PhotoImage(self,file='prot.png')
-        # self.labelphoto= tk.Label(self,image='')
-        # self.labelphoto.image = self.photo
-        # self.labelphoto.grid(row=1,columnspan=3)
+        self.photo = tk.PhotoImage(master=self,file='./prot.png')
+        self.labelphoto= tk.Label(self,image=self.photo)
+        self.labelphoto.image = self.photo
+        self.labelphoto.grid(row=1,columnspan=3)
 
         self.maj = ttk.Button(self,text='Chercher une mise à jour',command=self.check_maj)
         self.maj.grid(row=5,column=0)
@@ -179,14 +179,14 @@ class Recherche(ttk.Frame):
     def __init__(self,master):
         ttk.Frame.__init__(self, master)
         self.master = master
-
-        # #image hmmer
-        # photo = tk.PhotoImage(master = self,file='hmmer_logo.png')
-        # labelphoto = tk.Label(self,image=photo)
-        # labelphoto.image = photo
-        # labelphoto.grid(row=0,column=1,columnspan=3)
         self.filename = ''
         self.command = ''
+
+        #image hmmer
+        self.photo = tk.PhotoImage(master = self,file='hmmer_logo.png')
+        self.labelphoto = tk.Label(self,image=self.photo)
+        self.labelphoto.image = self.photo
+        self.labelphoto.grid(row=0,column=1,columnspan=3)
         #Rentrer un fichier fasta
         self.Labelinput=ttk.Label(self, text="Rentrer un fichier fasta")
         self.Labelinput.grid(row=1, column=1,sticky='w',columnspan=2)
@@ -226,12 +226,15 @@ class Recherche(ttk.Frame):
 
         self.eforEValue.insert(0,"10")
         self.eforCValue.insert(0,"10")
-        # Labelinput.config(font=("song ti", 14))
-        # LabelinputOptions.config(font=("song ti", 14))
+
         #Ajoute pour chaque ligne un padding
         for i in range(12):
             if i != 3:
-                self.grid_rowconfigure(i, pad=50)
+                self.grid_rowconfigure(i, pad=20)
+        self.grid_columnconfigure(0, weight=1, minsize=20) #weight 1 permet de creer column vide
+        self.grid_columnconfigure(4, weight=1, minsize=20)
+        self.grid_rowconfigure(8, weight=1)
+        self.grid_rowconfigure(2, weight=1)
         self.grid_columnconfigure(3, pad=100)
         self.grid()
 
