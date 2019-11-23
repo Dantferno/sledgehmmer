@@ -496,6 +496,7 @@ class Results(ttk.Frame):
 
 
     def tree_sort_column(self,col,reverse):
+        '''Sort columns upon clicking on heading'''
         l = [(self.tree.set(k, col), k) for k in self.tree.get_children('')]
         try:
             l.sort(key=lambda t: float(t[0]), reverse=reverse)
@@ -522,37 +523,26 @@ class Results(ttk.Frame):
         #Oublie l'ancien tableau et recreer le avec les conditions
         self.tree.grid_forget()
         self.tree = ttkwidgets.CheckboxTreeview(self, height=20)
-        self.tree['columns']=('one','two','three','four','five','six','7','8','9','10','11','12','13')
+        self.tree['columns']=('target','tlen','query','qlen','evalue','score','#','of','c-evalue','hmm from','hmm to','ali from','ali to')
         #tailles colonnes
-        self.tree.column("#0",width=50,anchor=tk.CENTER)
-        self.tree.column("one",width=130,anchor=tk.CENTER)
-        self.tree.column("two",width=50,anchor=tk.CENTER)
-        self.tree.column("three",width=150,anchor=tk.CENTER)
-        self.tree.column('four',width=50,anchor=tk.CENTER)
-        self.tree.column('five',width=100,anchor=tk.CENTER)
-        self.tree.column('six',width=100,anchor=tk.CENTER)
-        self.tree.column('7',width=20,anchor=tk.CENTER)
-        self.tree.column('8',width=20,anchor=tk.CENTER)
-        self.tree.column('9',width=100,anchor=tk.CENTER)
-        self.tree.column('10',width=100,anchor=tk.CENTER)
-        self.tree.column('11',width=100,anchor=tk.CENTER)
-        self.tree.column('12',width=100,anchor=tk.CENTER)
-        self.tree.column('13',width=100,anchor=tk.CENTER)
+        self.tree.column("#0",width=50)
+        self.tree.column("target",width=130,anchor=tk.CENTER)
+        self.tree.column("tlen",width=50,anchor=tk.CENTER)
+        self.tree.column("query",width=150,anchor=tk.CENTER)
+        self.tree.column('qlen',width=50,anchor=tk.CENTER)
+        self.tree.column('evalue',width=100,anchor=tk.CENTER)
+        self.tree.column('score',width=100,anchor=tk.CENTER)
+        self.tree.column('#',width=20,anchor=tk.CENTER)
+        self.tree.column('of',width=20,anchor=tk.CENTER)
+        self.tree.column('c-evalue',width=100,anchor=tk.CENTER)
+        self.tree.column('hmm from',width=100,anchor=tk.CENTER)
+        self.tree.column('hmm to',width=100,anchor=tk.CENTER)
+        self.tree.column('ali from',width=100,anchor=tk.CENTER)
+        self.tree.column('ali to',width=100,anchor=tk.CENTER)
         #nom colonnes
-        self.tree.heading('#0',text='select')
-        self.tree.heading('one',text='target')
-        self.tree.heading('two',text='tlen')
-        self.tree.heading('three',text='query')
-        self.tree.heading('four',text='qlen')
-        self.tree.heading('five',text='evalue')
-        self.tree.heading('six',text='score')
-        self.tree.heading('7',text='#')
-        self.tree.heading('8',text='of')
-        self.tree.heading('9',text='c-evalue')
-        self.tree.heading('10',text='hmm from')
-        self.tree.heading('11',text='hmm to')
-        self.tree.heading('12',text='ali to')
-        self.tree.heading('13',text='ali from')
+        for col in self.tree['columns']:
+            self.tree.heading(col,text=col,command=lambda _col=col:self.tree_sort_column(_col,False))
+
         #Pour chaque ligne du domtblout, les inseres si elles respectent les
         #conditions donnees
         j=0
