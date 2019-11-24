@@ -1,6 +1,7 @@
 import tkinter as tk
 import tkinter.filedialog
 import tkinter.messagebox
+import tkinter.simpledialog
 import ttkthemes #a installer
 import subprocess
 import threading
@@ -12,6 +13,7 @@ import ttkwidgets #a installer
 import ftplib
 import os
 import re
+from mysqlconnect import *
 
 class Accueil(ttk.Frame):
     '''Fenetre d'accueil, propose de mettre a jour, lancer une
@@ -326,7 +328,7 @@ class SearchInProgress(ttk.Frame):
             with subprocess.Popen("exec " + self.cmd, shell=True,
             stdout=subprocess.PIPE, bufsize=1, universal_newlines=True) as p:
                 self.cancel_button = ttk.Button(self,
-                text='Retour', command=self.cancel_popen).grid(row=4,
+                text='Retour', command=lambda:self.cancel_popen(p)).grid(row=4,
                 column=0,sticky='w',pady=25,padx=25)
                 for line in p.stdout:
                     if line.startswith('Query:'):
@@ -366,11 +368,11 @@ class SearchInProgress(ttk.Frame):
         Results(self.master,self.result_file)
 
 
-
-    def cancel_popen(p,self):
+    def cancel_popen(self,p):
         '''tue le thread si bouton retour est appuye et retourne sur
         la fenetre de recherche'''
         p.kill()
+        self.grid_forget()
         Recherche(self.master)
 
 
@@ -385,7 +387,7 @@ class Results(ttk.Frame):
         #stock dans matrice les resultats parsé (une ligne -> une liste)
         self.matrice = self.parsehmmer()
         self.labelresultat = ttk.Label(self,
-        text='Resultat trouvé : {}'.format(len(self.matrice)))
+        text='Resultat trouvé : {}'.format(len(self.matrice)-1))
 
         #Creer un tableau des resultats
         self.tree = ttkwidgets.CheckboxTreeview(self, height=20)
@@ -398,8 +400,8 @@ class Results(ttk.Frame):
         self.tree.column('qlen',width=50,anchor=tk.CENTER)
         self.tree.column('evalue',width=100,anchor=tk.CENTER)
         self.tree.column('score',width=100,anchor=tk.CENTER)
-        self.tree.column('#',width=20,anchor=tk.CENTER)
-        self.tree.column('of',width=20,anchor=tk.CENTER)
+        self.tree.column('#',width=25,anchor=tk.CENTER)
+        self.tree.column('of',width=25,anchor=tk.CENTER)
         self.tree.column('c-evalue',width=100,anchor=tk.CENTER)
         self.tree.column('hmm from',width=100,anchor=tk.CENTER)
         self.tree.column('hmm to',width=100,anchor=tk.CENTER)
@@ -532,8 +534,8 @@ class Results(ttk.Frame):
         self.tree.column('qlen',width=50,anchor=tk.CENTER)
         self.tree.column('evalue',width=100,anchor=tk.CENTER)
         self.tree.column('score',width=100,anchor=tk.CENTER)
-        self.tree.column('#',width=20,anchor=tk.CENTER)
-        self.tree.column('of',width=20,anchor=tk.CENTER)
+        self.tree.column('#',width=25,anchor=tk.CENTER)
+        self.tree.column('of',width=25,anchor=tk.CENTER)
         self.tree.column('c-evalue',width=100,anchor=tk.CENTER)
         self.tree.column('hmm from',width=100,anchor=tk.CENTER)
         self.tree.column('hmm to',width=100,anchor=tk.CENTER)
@@ -573,7 +575,7 @@ class Results(ttk.Frame):
         #Met a jour le label indiquant le nombre de resultat
         self.labelresultat.grid_forget()
         self.labelresultat = ttk.Label(self,
-        text='Résultats trouvés : {0}, après filtrage : {1}'.format(len(self.matrice),passe_selection))
+        text='Résultats trouvés : {0}, après filtrage : {1}'.format(len(self.matrice)-1,passe_selection))
         self.labelresultat.grid(row=1,columnspan=3,pady=20)
 
         #Bouton d'ajout a la DB
@@ -585,10 +587,13 @@ class Results(ttk.Frame):
 
     def add_to_DB(self):
         '''Ajouter les lignes selectionne a la database mysql'''
+        PromptDB(self,'Connection Base de donnee')
         grab = []
+        grab.append(self.matrice[0])
         for i in self.tree.get_checked():
             grab.append(self.index_indices[i])
-        tk.messagebox.showinfo(title='coucou',message='{0}'.format(grab))
+        add_to_DB(grab)
+
 
     def fenetre_recherche(self):
         '''Permet d'aller a la fenetre de recherche'''
@@ -611,6 +616,26 @@ class Results(ttk.Frame):
                 text2save = t.read()
             f.write(text2save)
             f.close()
+
+class PromptDB(tk.simpledialog.Dialog):
+    '''Prompt for database information'''
+    def body(self, master):
+
+        ttk.Label(master, text="First:").grid(row=0)
+        ttk.Label(master, text="Second:").grid(row=1)
+
+        self.e1 = ttk.Entry(master)
+        self.e2 = ttk.Entry(master)
+
+        self.e1.grid(row=0, column=1)
+        self.e2.grid(row=1, column=1)
+        return self.e1 # initial focus
+
+    def apply(self):
+        first = int(self.e1.get())
+        second = int(self.e2.get())
+        print(first, second) # or something
+
 
 
 
