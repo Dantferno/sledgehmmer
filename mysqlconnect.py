@@ -60,7 +60,7 @@ def insert_into_DB(cursor,matrice):
                 ajout +=1
             except mysql.connector.errors.IntegrityError:
                 duplicate +=1
-    tkinter.messagebox.showinfo('Ajout','Ajout : {0}\n Duplicat : {1}'.format(ajout,duplicate))
+    tkinter.messagebox.showinfo('Ajout ','Ajout : {0}\n Duplicat : {1}'.format(ajout,duplicate))
 
 
 def remember_DB(host,db,user,passwd):
