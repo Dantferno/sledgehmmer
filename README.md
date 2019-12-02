@@ -1,14 +1,23 @@
-# BEstHMM
-Graphical User Interface for hmmseearch and scan.
-Allow to add selected hit to a database.
 
-
-
-## Installation
-run pip install autoconf
-
+# sledgehmmer
+GUI for hmmer analysis
 
 requis :
-tkwidgets
-tkthemes
+ttkwidgets
+ttkthemes
 hmmer
+
+
+gerer redondance
+transformer update window in class
+ask databse information OK
+curseur maj
+
+site:
+plot historique des seq ajout
+login page
+couleur domaines
+recouvrement moyen max min
+cle triple
+improve table
+

@@ -170,9 +170,20 @@ class Accueil(ttk.Frame):
         persoFile = tk.filedialog.askopenfilename()
         #Test si un fichier a ete choisi, tkinter.filedialog return () ou ''
         #si cancel selectionne
-        if str(persoFile) != '()' and str(persoFile) != '':
-            self.grid_forget()
-            Results(self.master,persoFile)
+
+        try:
+            with open(persoFile) as f :
+                f = f.readlines()
+                if 'domtblout' in f[-4]:
+                    self.grid_forget()
+                    Results(self.master,persoFile)
+                else:
+                    tk.messagebox.showerror('Erreur',
+                    'Merci d\'indiquer un fichier au format domtblout')
+        except :
+            tk.messagebox.showerror('Erreur',
+            'Merci d\'indiquer un fichier au format domtblout')
+
 
 class Recherche(ttk.Frame):
     '''Fenetre de choix de la recherche, propose de choisir un fichier
@@ -586,13 +597,25 @@ class Results(ttk.Frame):
         self.tree.grid(row=2,columnspan=3)
 
     def add_to_DB(self):
-        '''Ajouter les lignes selectionne a la database mysql'''
-        PromptDB(self,'Connection Base de donnee')
-        grab = []
-        grab.append(self.matrice[0])
+
+        '''Ajouter les lignes selectionne a la database mysql,
+        si aucune DB configure demande les renseignements'''
+        self.grab = []
+        self.grab.append(self.matrice[0])
         for i in self.tree.get_checked():
-            grab.append(self.index_indices[i])
-        add_to_DB(grab)
+            self.grab.append(self.index_indices[i])
+        try:
+            with open('config.txt','r') as f :
+                list_info = f.read().split()
+                host = list_info[0]
+                db = list_info[1]
+                user = list_info[2]
+                passwd = list_info[3]
+                add_to_database(self.grab,host,db,user,passwd)
+        except (FileNotFoundError,IndexError):
+            PromptDB(self,'Connection Base de donnee')
+
+
 
 
     def fenetre_recherche(self):
@@ -621,20 +644,30 @@ class PromptDB(tk.simpledialog.Dialog):
     '''Prompt for database information'''
     def body(self, master):
 
-        ttk.Label(master, text="First:").grid(row=0)
-        ttk.Label(master, text="Second:").grid(row=1)
+
+        ttk.Label(master, text="Host:").grid(row=0)
+        ttk.Label(master, text="Database:").grid(row=1)
+        ttk.Label(master, text="User:").grid(row=2)
+        ttk.Label(master, text="Password:").grid(row=3)
 
         self.e1 = ttk.Entry(master)
         self.e2 = ttk.Entry(master)
+        self.e3 = ttk.Entry(master)
+        self.e4 = ttk.Entry(master)
 
         self.e1.grid(row=0, column=1)
         self.e2.grid(row=1, column=1)
+        self.e3.grid(row=2, column=1)
+        self.e4.grid(row=3, column=1)
         return self.e1 # initial focus
 
     def apply(self):
-        first = int(self.e1.get())
-        second = int(self.e2.get())
-        print(first, second) # or something
+        host = self.e1.get()
+        database = self.e2.get()
+        user = self.e3.get()
+        passwd = self.e4.get()
+        add_to_database(self.master.grab,host,database,user,passwd)
+
 
 
 
