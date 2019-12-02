@@ -170,6 +170,7 @@ class Accueil(ttk.Frame):
         persoFile = tk.filedialog.askopenfilename()
         #Test si un fichier a ete choisi, tkinter.filedialog return () ou ''
         #si cancel selectionne
+
         try:
             with open(persoFile) as f :
                 f = f.readlines()
@@ -182,6 +183,7 @@ class Accueil(ttk.Frame):
         except :
             tk.messagebox.showerror('Erreur',
             'Merci d\'indiquer un fichier au format domtblout')
+
 
 class Recherche(ttk.Frame):
     '''Fenetre de choix de la recherche, propose de choisir un fichier
@@ -595,6 +597,7 @@ class Results(ttk.Frame):
         self.tree.grid(row=2,columnspan=3)
 
     def add_to_DB(self):
+
         '''Ajouter les lignes selectionne a la database mysql,
         si aucune DB configure demande les renseignements'''
         self.grab = []
@@ -611,6 +614,7 @@ class Results(ttk.Frame):
                 add_to_database(self.grab,host,db,user,passwd)
         except (FileNotFoundError,IndexError):
             PromptDB(self,'Connection Base de donnee')
+
 
 
 
@@ -640,6 +644,7 @@ class PromptDB(tk.simpledialog.Dialog):
     '''Prompt for database information'''
     def body(self, master):
 
+
         ttk.Label(master, text="Host:").grid(row=0)
         ttk.Label(master, text="Database:").grid(row=1)
         ttk.Label(master, text="User:").grid(row=2)
@@ -662,6 +667,7 @@ class PromptDB(tk.simpledialog.Dialog):
         user = self.e3.get()
         passwd = self.e4.get()
         add_to_database(self.master.grab,host,database,user,passwd)
+
 
 
 
