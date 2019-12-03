@@ -58,10 +58,14 @@ class Accueil(ttk.Frame):
             #Stock la date de derniere modification dans le fichier nbr_profile
             self.last_modified = '{0} {1} {2}'.format(reponse[-3],reponse[-4], reponse[-2])
 
-            with open('./librairie/nbr_profile_pfam','r') as f:
-                readf = f.readlines()
-                nbr_profile = readf[0]
-                current_release = readf[1].strip('\n')
+            try :
+                with open('./librairie/nbr_profile_pfam','r') as f:
+                    readf = f.readlines()
+                    nbr_profile = readf[0]
+                    current_release = readf[1].strip('\n')
+            except FileNotFoundError:
+                tk.messagebox.showerror('Pfam','Merci d\'éxécuter le makefile afin de compléter l\'installation')
+                return
 
             #affiche sur le GUI les informations
             self.maj.grid_forget()
@@ -71,7 +75,7 @@ class Accueil(ttk.Frame):
 
             #Si une nouvelle version a telecharge propose
             if self.last_modified != current_release:
-                self.majbutton = ttk.Button(self, text='Mettre a jour',
+                self.majbutton = ttk.Button(self, text='Actualiser',
                 command=lambda:download_pfam(self,ftp)).grid(row=5,column=0)
 
             else:
@@ -275,9 +279,20 @@ class Recherche(ttk.Frame):
             evalue_ok = True
         except ValueError:
             evalue_ok = False
-
+        try:
+            with open('./librairie/Pfam-A.hmm','r') as f:
+                pass
+            with open('.librairie2/nbr_profile_pfam','r') as f:
+                Pfam_exist=True
+        except FileNotFoundError:
+            Pfam_exist = False
         if self.check_fasta() is False:
             tk.messagebox.showerror('Erreur', 'Merci de specifier un fichier au format fasta')
+        elif Pfam_exist is False:
+            tk.messagebox.showerror('Pas de librarie PFAM',"Merci d'éxécuter le makefile afin de télécharger la librairie Pfam")
+            self.grid_forget()
+            Accueil(self.master)
+
         elif self.choicecmd.get() == '':
             tk.messagebox.showerror('Erreur', 'Merci de specifier hmmsearch ou hmmscan')
         elif evalue_ok is False:
@@ -396,7 +411,7 @@ class Results(ttk.Frame):
         #stock dans matrice les resultats parsé (une ligne -> une liste)
         self.matrice = self.parsehmmer()
         self.labelresultat = ttk.Label(self,
-        text='Resultat trouvé : {}'.format(len(self.matrice)-1))
+        text='Résultats trouvés : {}'.format(len(self.matrice)-1))
 
         #Creer un tableau des resultats
         self.tree = ttkwidgets.CheckboxTreeview(self, height=20)
