@@ -425,12 +425,18 @@ class Results(ttk.Frame):
         self.index_indices = {}
         #Insere toutes les lignes du domtblout
         for i in self.matrice[1:]:
-            indice = self.tree.insert('',j,text='',
-            values=(i[0],int(i[2]),i[3],int(i[5]),float(i[6]),float(i[7]),int(i[9]),int(i[10]),float(i[11]),int(i[15]),int(i[16]),int(i[17]),int(i[18])))
-            self.index_indices[indice] = (i[0],i[2],i[3],i[5],i[6],i[7],i[9],i[10],i[11],i[15],i[16],i[17],i[18])
+            if j%2 ==0:
+                indice = self.tree.insert('',j,text='',
+                values=(i[0],int(i[2]),i[3],int(i[5]),float(i[6]),float(i[7]),int(i[9]),int(i[10]),float(i[11]),int(i[15]),int(i[16]),int(i[17]),int(i[18])),tags = ('pair',))
+                self.index_indices[indice] = (i[0],i[2],i[3],i[5],i[6],i[7],i[9],i[10],i[11],i[15],i[16],i[17],i[18])
+            else:
+                indice = self.tree.insert('',j,text='',
+                values=(i[0],int(i[2]),i[3],int(i[5]),float(i[6]),float(i[7]),int(i[9]),int(i[10]),float(i[11]),int(i[15]),int(i[16]),int(i[17]),int(i[18])),tags = ('impair',))
+                self.index_indices[indice] = (i[0],i[2],i[3],i[5],i[6],i[7],i[9],i[10],i[11],i[15],i[16],i[17],i[18])
             j+=1
-
-        self.tree.grid(row=2,columnspan=3)
+        self.tree.tag_configure('pair', background='#E8E8E8')
+        self.tree.tag_configure('impair', background='#DFDFDF')
+        self.tree.grid(row=2,columnspan=4)
         self.filtre_label = ttk.Label(self,text='').grid(row=3)
         #Choix evalue
         self.filtre_evalue_label = ttk.Label(self,
@@ -445,11 +451,15 @@ class Results(ttk.Frame):
         text='% recouvrement min :').grid(row=4,column=1)
         self.recouvrement = ttkwidgets.TickScale(self,
         from_=0,to=100,orient='horizontal',resolution=1,length=200)
-
+        #Choix redondance
+        self.redondance_label = ttk.Label(self,
+        text='Supprimer redondance :').grid(row=4,column=2)
+        self.redondance = tk.IntVar()
+        self.redondance_box = ttk.Checkbutton(self,onvalue=1,offvalue=0, variable = self.redondance)
         #bouton de mise a jour
         self.majbutton = ttk.Button(self,
         text='Mettre à jour',
-        command=self.update_tree).grid(row=5,column=2)
+        command=self.update_tree).grid(row=5,column=3)
 
         #Bouton d'ajout a la DB
         self.send_check = ttk.Button(self,
@@ -464,10 +474,11 @@ class Results(ttk.Frame):
         text='Retour accueil',
         command=self.fenetre_accueil)
         #Configuration du layout
-        self.labelresultat.grid(row=1,columnspan=3,pady=20)
+        self.labelresultat.grid(row=1,columnspan=4,pady=20)
         self.recouvrement.grid(row=5,column=1)
-        self.send_check.grid(row=6,column=1)
-        self.NouvelleRecherche.grid(row=6,column=2)
+        self.redondance_box.grid(row=5,column=2)
+        self.send_check.grid(row=6,column=1,columnspan=2)
+        self.NouvelleRecherche.grid(row=6,column=3)
         self.Accueil.grid(row=6,column=0)
         self.grid(row=0, column=1,sticky='news')
         self.grid_rowconfigure(0, pad=50)
@@ -559,40 +570,93 @@ class Results(ttk.Frame):
         j=0
         passe_selection =0
         self.index_indices = {}
+        if self.redondance.get() == 1:
+            sorted_matrice = self.adjust_matrix()
+        else:
+            sorted_matrice = self.matrice
         if self.matrice[0] == 'hmmsearch':
-            for i in self.matrice[1:]:
+            for i in sorted_matrice[1:]:
                 j+=1
                 if float(i[6])<=evalue:
                     if int(recouvrement) <= (int(i[16])-int(i[15])+1)/int(i[5])*100:
-                        indice = self.tree.insert('',j,text='',
-                        values=(i[0],i[2],i[3],i[5],i[6],i[7],i[9],i[10],
-                        i[11],i[15],i[16],i[17],i[18]))
-                        self.index_indices[indice] = (i[0],i[2],i[3],i[5],i[6],i[7],i[9],i[10],
-                        i[11],i[15],i[16],i[17],i[18])
                         passe_selection += 1
+                        if passe_selection%2==0:
+                            indice = self.tree.insert('',j,text='',
+                            values=(i[0],i[2],i[3],i[5],i[6],i[7],i[9],i[10],
+                            i[11],i[15],i[16],i[17],i[18]),tags = ('pair',))
+                            self.index_indices[indice] = (i[0],i[2],i[3],i[5],i[6],i[7],i[9],i[10],
+                            i[11],i[15],i[16],i[17],i[18])
+                        else :
+                            indice = self.tree.insert('',j,text='',
+                            values=(i[0],i[2],i[3],i[5],i[6],i[7],i[9],i[10],
+                            i[11],i[15],i[16],i[17],i[18]),tags = ('impair',))
+                            self.index_indices[indice] = (i[0],i[2],i[3],i[5],i[6],i[7],i[9],i[10],
+                            i[11],i[15],i[16],i[17],i[18])
         else:
-            for i in self.matrice[1:]:
+            for i in sorted_matrice[1:]:
                 j+=1
                 if float(i[6])<=evalue:
                     if int(recouvrement) <= (int(i[16])-int(i[15])+1)/int(i[2])*100:
-                        indice = self.tree.insert('',j,text='',
-                        values=(i[0],i[2],i[3],i[5],i[6],i[7],i[9],i[10],
-                        i[11],i[15],i[16],i[17],i[18]))
-                        self.index_indices[indice] = (i[0],i[2],i[3],i[5],i[6],i[7],i[9],i[10],
-                        i[11],i[15],i[16],i[17],i[18])
                         passe_selection += 1
+                        if passe_selection%2==0:
+                            indice = self.tree.insert('',j,text='',
+                            values=(i[0],i[2],i[3],i[5],i[6],i[7],i[9],i[10],
+                            i[11],i[15],i[16],i[17],i[18]),tags = ('pair',))
+                            self.index_indices[indice] = (i[0],i[2],i[3],i[5],i[6],i[7],i[9],i[10],
+                            i[11],i[15],i[16],i[17],i[18])
+                        else:
+                            indice = self.tree.insert('',j,text='',
+                            values=(i[0],i[2],i[3],i[5],i[6],i[7],i[9],i[10],
+                            i[11],i[15],i[16],i[17],i[18]),tags = ('impair',))
+                            self.index_indices[indice] = (i[0],i[2],i[3],i[5],i[6],i[7],i[9],i[10],
+                            i[11],i[15],i[16],i[17],i[18])
+
+        self.tree.tag_configure('pair', background='#E8E8E8')
+        self.tree.tag_configure('impair', background='#DFDFDF')
         #Met a jour le label indiquant le nombre de resultat
         self.labelresultat.grid_forget()
         self.labelresultat = ttk.Label(self,
         text='Résultats trouvés : {0}, après filtrage : {1}'.format(len(self.matrice)-1,passe_selection))
-        self.labelresultat.grid(row=1,columnspan=3,pady=20)
-
+        self.labelresultat.grid(row=1,columnspan=4,pady=20)
         #Bouton d'ajout a la DB
         self.send_check = ttk.Button(self,
         text='Ajouter a la base de donnee',
         command=self.add_to_DB)
-        self.send_check.grid(row=6,column=1)
-        self.tree.grid(row=2,columnspan=3)
+        self.send_check.grid(row=6,column=1,columnspan=2)
+        self.tree.grid(row=2,columnspan=4)
+
+    def adjust_matrix(self):
+        """Si l'option supprimer la redondance est cochée, supprime les hits
+        qui se recouvre en gardant celui avec la meilleur evalue et place ceux-ci
+        dans une nouvelle matrice -> adjusted_matrix """
+        j=0
+        if self.matrice[0] == 'hmmscan':
+            adjusted_matrix=[self.matrice[1]]
+            for result in self.matrice[2:]: #pour chaque resultat
+            #pars du principe que le resultat et non redondant
+                ok = True
+                for adjust in adjusted_matrix: #pour chaque resultqt non redondant
+                    if result[3]==adjust[3] :
+                        if int(adjust[17])<=int(result[17]) <=int(adjust[18]) or int(adjust[17])<=int(result[18]) <=int(adjust[18]):
+                            ok=False
+                if ok is True:
+                    adjusted_matrix.append(result)
+        elif self.matrice[0] == 'hmmsearch':
+            adjusted_matrix=[self.matrice[1]]
+            for result in self.matrice[2:]: #pour chaque resultat
+            #pars du principe que le resultat et non redondant
+                ok = True
+                for adjust in adjusted_matrix: #pour chaque resultat non redondant
+                    if result[0]==adjust[0] : #Si le resultat correspond a une sequence deja ajuste
+                        #Considere comme redondant si les coordonnes du nouveaux domaines chevauche un domaine ajuste
+                        if int(adjust[17])<=int(result[17]) <=int(adjust[18]) or int(adjust[17])<=int(result[18]) <=int(adjust[18]):
+                            ok=False
+                if ok is True:
+                    adjusted_matrix.append(result)
+        return adjusted_matrix
+
+
+
 
     def add_to_DB(self):
         '''Ajouter les lignes selectionne a la database mysql,
