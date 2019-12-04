@@ -77,7 +77,7 @@ def add_to_database(matrice,host,DB_NAME,user,passwd):
     "  `ali_from` int(10) NOT NULL,"
     "  `ali_to` int(10) NOT NULL,"
     " `date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
-    "  PRIMARY KEY (`seq_name`,`seq_len`,`domain_name`,`domain_len`,`ali_from`,`ali_to`)"
+    "  PRIMARY KEY (`seq_name`,`domain_name`,`ali_from`)"
     ") ENGINE=InnoDB"
     )
     connect = connection(host,DB_NAME,user,passwd)
