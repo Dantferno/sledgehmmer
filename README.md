@@ -4,6 +4,7 @@ It allows visualisation of the results in a table view using Tkinter.
 Domains can be filtered after the analysis using an E-value, the minimum coverage of the profile hmm and a redondant option.
 Selected items from the table can be added to a custom MySQL database.
 
+A web interface is also available to visualise the result at : http://hugo.croizer.etu.perso.luminy.univ-amu.fr/besthmm/interfaceweb.php
 
 
 ## Installation
