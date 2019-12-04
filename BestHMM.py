@@ -84,8 +84,10 @@ class Accueil(ttk.Frame):
                 ftp.close()
 
         except Exception as e:
+
             errorlabel = tk.messagebox.showerror('Erreur de connection',
             'Verifie votre connection a internet {}'.format(e))
+
 
     def download_pfam(self,ftp):
         '''telecharge la derniere version de pfam et compte le nbr de profile,
@@ -282,7 +284,7 @@ class Recherche(ttk.Frame):
         try:
             with open('./librairie/Pfam-A.hmm','r') as f:
                 pass
-            with open('.librairie2/nbr_profile_pfam','r') as f:
+            with open('./librairie/nbr_profile_pfam','r') as f:
                 Pfam_exist=True
         except FileNotFoundError:
             Pfam_exist = False

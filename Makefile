@@ -5,3 +5,4 @@ install: BestHMM.py
 	gunzip Pfam-A.hmm.gz; \
 	hmmpress Pfam-A.hmm
 	python nombre_profil.py
+	pip install -r requirements.txt
