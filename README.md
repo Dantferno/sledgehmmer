@@ -1,6 +1,6 @@
 # BestHMM
 BestHMM is a GUI for hmmscan and hmmsearch analysis against the latest Pfam library.
-It allows visualisation of the results in a table view using Tkinter. 
+It allows visualisation of the results in a table view using Tkinter.
 Domains can be filtered after the analysis using an E-value, the minimum coverage of the profile hmm and a redondant option.
 Selected items from the table can be added to a custom MySQL database.
 
@@ -15,18 +15,25 @@ For Ubuntu :
 sudo apt install hmmer
 ```
 
-Once hmmer is installed just run this in the BestHMM directory 
+Once hmmer is installed just run this in the BestHMM directory
 ```make
 make install
 ```
 ## Required :
 Linux
+
 hmmer
+
 python>=3
+
 The following library will be installed from the make file :
+
 ttkwidgets
+
 ttkthemes
+
 mysql-connector-python
+
 Biopython
 
 gerer redondance
