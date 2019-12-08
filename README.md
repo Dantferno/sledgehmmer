@@ -20,31 +20,17 @@ Once hmmer is installed just run this in the BestHMM directory
 make install
 ```
 ## Required :
-Linux
+Linux\
+hmmer\
+python>=3\
+The following library will be installed from the make file :\
+ttkwidgets\
+ttkthemes\
+mysql-connector-python\
+Biopython\
 
-hmmer
-
-python>=3
-
-The following library will be installed from the make file :
-
-ttkwidgets
-
-ttkthemes
-
-mysql-connector-python
-
-Biopython
-
-gerer redondance
+### A faire
 transformer update window in class
-ask databse information OK
-curseur maj
 
 site:
-plot historique des seq ajout
-login page
-couleur domaines
 recouvrement moyen max min
-cle triple
-improve table
