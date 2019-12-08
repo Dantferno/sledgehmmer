@@ -223,12 +223,13 @@ class Recherche(ttk.Frame):
         self.LabelinputOptions.grid(row=6, column=1,sticky='w')
         self.LabelinputEvalue=ttk.Label(self, text="E-value :")
         self.LabelinputEvalue.grid(row=7, column=1,sticky='w')
-        self.LabelinputCvalue=ttk.Label(self, text="C-value :")
+        self.LabelinputCvalue=ttk.Label(self, text="Domaine E-value :")
         self.LabelinputCvalue.grid(row=8, column=1,sticky='w')
         self.evalue = tk.StringVar()
+        self.domevalue = tk.StringVar()
         self.eforEValue =ttk.Entry(self, width=10, justify='center',textvariable=self.evalue)
         self.eforEValue.grid(row=7, column=2)
-        self.eforCValue =ttk.Entry(self, width=10, justify='center')
+        self.eforCValue =ttk.Entry(self, width=10, justify='center',textvariable=self.domevalue)
         self.eforCValue.grid(row=8, column=2)
         #Boutton pour envoyer les informations
         self.Bsubmit= ttk.Button(self, text ="Envoyé",
@@ -278,6 +279,7 @@ class Recherche(ttk.Frame):
         '''
         try:
             evalue = float(self.evalue.get())
+            domevalue = float(self.domevalue.get())
             evalue_ok = True
         except ValueError:
             evalue_ok = False
@@ -301,9 +303,9 @@ class Recherche(ttk.Frame):
             tk.messagebox.showerror('Erreur', 'Merci de specifier une evalue valable')
         else:
             if self.choicecmd.get()=='hmmsearch':
-                self.command = '{0} --domtblout tmp --noali -E {2} ./librairie/Pfam-A.hmm {1} '.format(self.choicecmd.get(),self.filename,self.evalue.get())
+                self.command = '{0} --domtblout tmp --noali -E {2} --domE {3} ./librairie/Pfam-A.hmm {1} '.format(self.choicecmd.get(),self.filename,self.evalue.get(),self.domevalue.get())
             elif self.choicecmd.get()=='hmmscan':
-                self.command = '{0} --domtblout tmp --noali -E {2} ./librairie/Pfam-A.hmm {1} '.format(self.choicecmd.get(),self.filename,self.evalue.get())
+                self.command = '{0} --domtblout tmp --noali -E {2} --domE {3} ./librairie/Pfam-A.hmm {1} '.format(self.choicecmd.get(),self.filename,self.evalue.get(),self.domevalue.get())
             self.grid_forget()
             SearchInProgress(self.master,self.command,self.filename)
 
@@ -373,7 +375,7 @@ class SearchInProgress(ttk.Frame):
                 #l'importation d'un fichier personnel
                 self.result_file='tmp'
                 tk.messagebox.showinfo('Succee',
-                'processe termine en {} secondes'.format(time.time() - self.start_time))
+                'processe termine en {} secondes'.format(int(time.time() - self.start_time)))
                 suivant = ttk.Button(self,text='suivant',
                 command=self.aller_troisieme_fenetre).grid(row=4,
                 column=1,sticky='e',pady=25,padx=25)
@@ -743,7 +745,6 @@ class PromptDB(tk.simpledialog.Dialog):
         user = self.e3.get()
         passwd = self.e4.get()
         add_to_database(self.master.grab,host,database,user,passwd)
-
 
 
 
