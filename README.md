@@ -22,15 +22,9 @@ make install
 ## Required :
 Linux\
 hmmer\
-python>=3\
+python>=3
 ### The following library will be installed from the make file :
 ttkwidgets\
 ttkthemes\
 mysql-connector-python\
 Biopython
-
-### A faire
-transformer update window in class
-
-site:
-recouvrement moyen max min
