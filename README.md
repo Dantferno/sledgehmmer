@@ -26,7 +26,7 @@ make install
 Linux\
 hmmer\
 python>=3
-#### The following library will be installed from the make file :
+#### The following library will be installed from the requirements file :
 ttkwidgets\
 ttkthemes\
 mysql-connector-python\
