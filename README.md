@@ -1,5 +1,6 @@
 # BestHMM
 BestHMM is a GUI for hmmscan and hmmsearch analysis against the latest Pfam library.
+
 An input fasta file (prot ou dna) is sent to hmmer, with a given e-value/dom-e-value.
 It allows visualisation of the results in a table view using Tkinter, displaying query and target name and length, and profile information (position of hit on sequence and completion of the hmm profile model along with the e-value).
 Domains can be filtered after the analysis using an E-value, the minimum coverage of the profile hmm and a redondant option.
